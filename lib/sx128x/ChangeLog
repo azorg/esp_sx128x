@@ -1,0 +1,90 @@
+2023.02.27
+ * remove sx128x_types.h, use stantart uin8_t etc 
+
+2022.11.01
+ - remove `#define SX128X_MAX_PACKET`
+
+2022.10.31
+ * add separate SW for GFSK/FLRC
+ + sx128x_set_swt_flrc()
+ + sx128x_get_swt_flrc()
+ + sx128x_set_swt_gfsk()
+ + sx128x_get_swt_gfsk()
+ + sx128x_set_wt_flrc()
+ + sx128x_get_wt_flrc()
+ + sx128x_set_sw_gfsk()
+ + sx128x_get_sw_gfsk()
+
+2022.10.30
+ + sx128x_wakeup()
+ * update sx128x_standby()
+ - remove timeout from SPI wrappers
+ + sx128x_gain_string[]
+ ! fix bug in sx128x_packet_flrc() - remove whitening
+ + sx128x_set_sw_tolerance()
+
+2022.10.29
+ + sx128x_fw_version()
+ + fix "RSSI is 0 after a sleep" bug (LoRa)
+ + sx128x_get_hdr_lora()
+
+2022.10.28
+ * update sx128x_ranging_result()
+ ! test GFSK, LoRa and Ranging [OK]
+ ! test FLRC [fail]
+
+2022.10.27
+ * fix some bugs (GFSK, Ranging result)
+ * fux bug (Rangeing calibration)
+ + sx128x_to_send()
+ ! find some BUGS in Ranging (not fix yet)
+ ! find BUG into distance calculation (not fix yet)
+
+2022.10.26
+ * fix some bugs
+ + `sx128x_status_t`
+ * refaсtor sx128x_get_rx_status() and sx128x_get_recv()
+ * update sx128x_fei_lora()
+
+2022.10.25
+ * fix some bugs
+ + sx128x_get_recv()
+
+2022.10.24
+ * add `advanced_ranging` to `sx128x_pars_t`
+ + SX128X_DEBUG_IRQ
+ + sx128x_get_rx_data()
+
+2022.10.22
+ + sx128x_get_lna_boost()
+ + sx128x_get_gain()
+ + sx128x_get_dcdc()
+ + sx128x_get_sw_lora()
+ + sx128x_get_cad_lora()
+ + sx128x_get_sw()
+
+2022.10.22
+ + sx128x_ranging_get_calibration()
+ + sx128x_ranging_set_calibration()
+ + ERRATA.md
+ * update SPI wrappers (API to hardware)
+ * start DEBUG!!!
+
+2022.10.21
+ + sx128x_address_ble()
+ + sx128x_crc_init_ble()
+ + sx128x_send()
+ + sx128x_receive()
+ + sx128x_advanced_ranging()
+ + sx128x_advanced_ranging_address()
+ * update sx128x_ranging_result()
+
+2022.10.20
+ * all (datasheet) functions implemented :-) (may be)
+
+2022.10.19
+ + add README.md (begin)
+
+2022.10.08:
+ * start project
+

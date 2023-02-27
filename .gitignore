@@ -1,0 +1,9 @@
+build
+*.o
+*.swp
+*.*~
+
+*.svd
+*.cfg
+#*.json
+
