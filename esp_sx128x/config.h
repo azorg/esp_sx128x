@@ -7,14 +7,16 @@
 #define CONFIG_H
 //-----------------------------------------------------------------------------
 #if defined(ESP32)
+#  define ARDUINO_ESP
 #  define ARDUINO_ESP32
 #  define HOST_NAME "ESP32"
 #elif defined(ESP8266)
+#  define ARDUINO_ESP
 #  define ARDUINO_ESP8266
 #  define HOST_NAME "ESP8266"
 #else
-#  define ARDUINO_ESP
-#  define HOST_NAME "ESP"
+#  define HOST_NAME "Arduino"
+#  define ARDUINO
 #endif
 //-----------------------------------------------------------------------------
 #define ABOUT_STRING HOST_NAME " + SX128x test"
