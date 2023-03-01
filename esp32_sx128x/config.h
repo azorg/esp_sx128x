@@ -7,8 +7,8 @@
 #define CONFIG_H
 //-----------------------------------------------------------------------------
 //#define ARDUINO_ESP // ESP32 or ESP8266
-//#define ARDUINO_ESP8266
-#define ARDUINO_ESP32
+#define ARDUINO_ESP8266
+//#define ARDUINO_ESP32
 //-----------------------------------------------------------------------------
 #define ABOUT_STRING "ESP32 + SX128x test"
 #define VERSION_SOFTWARE_STR "0.0.1" // software version

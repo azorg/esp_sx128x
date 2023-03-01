@@ -34,6 +34,16 @@ cli_cmd_t const cli_tree[] = {
   _F( 31,  30, cli_sys_info,        "info",       "",                  "print system information")
   _F( 32,  30, cli_sys_time,        "time",       "",                  "print system time and ticks")
   _F( 34,  30, cli_sys_reset,       "reset",      "",                  "full system reset MCU")
+  
+  _F( 40,  -1, cli_help,            "eeprom",     "",                  "EEPROM commands")
+  _F( 41,  40, cli_eeprom_erase,    "erase",      "",                  "erase options region of EEPROM")
+  _F( 42,  40, cli_eeprom_write,    "write",      "",                  "write all options to EEPROM (Ctrl+W)")
+  _F( 43,  40, cli_eeprom_read,     "read",       "",                  "read all options from EEPROM")
+  _F( 44,  40, cli_eeprom_delete,   "delete",     "",                  "delete last options record from EEPROM")
+  _F( 45,  40, cli_eeprom_diff,     "diff",       "",                  "find differece between current options and saved in EEPROM")
+  _F( 46,  40, cli_eeprom_dump,     "dump",       " [offset size]",    "hex dump region in EEPROM")
+
+  _F( 50,  -1, cli_def,             "def",        "",                  "set to default all options (opt_t)")
 
   _F( -1,  -1, NULL,                NULL,         NULL,                NULL)
 };

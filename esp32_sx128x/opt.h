@@ -6,7 +6,7 @@
 #define OPT_H
 //-----------------------------------------------------------------------------
 #include "sx128x.h"
-//#include "tfs.h"
+#include "tfs.h"
 //----------------------------------------------------------------------------
 #ifndef OPT_DATA_SIZE
 #  define OPT_DATA_SIZE 64
@@ -28,7 +28,7 @@ extern "C"
 #endif // __cplusplus
 //-----------------------------------------------------------------------------
 void opt_default(opt_t *opt); // set to default all options
-//void opt_read_from_flash(opt_t *opt, tfs_t *tfs); // restore options from TFS
+void opt_read_from_flash(opt_t *opt, tfs_t *tfs, int verbose); // restore options from TFS
 //-----------------------------------------------------------------------------
 #ifdef __cplusplus
 }

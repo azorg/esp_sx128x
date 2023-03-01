@@ -29,14 +29,14 @@ void setup() {
   print_str("\r\n\r\nArduino started\r\n");
 
   // EEPROM
-  EEPROM_BEGIN(2048); //!!!
+  EEPROM_BEGIN(2048); // FIXME: magic
 
-  // init TFS structure (initial set EEPROM space)
+  // init TFS structure (initial set EEPROM space) // FIXME: magic
   tfs_init(&Tfs, 1, 0, 1024); // num_pages (1 or 2), address, page_size
 
-  // restore Opt
+  // restore Opt from EEPROM
   opt_default(&Opt); // set to default all options
-  // FIXME: read from FLASH
+  opt_read_from_flash(&Opt, &Tfs, Verbose);
 
   // init SPI and SPI pins
   sx128x_hw_begin();
