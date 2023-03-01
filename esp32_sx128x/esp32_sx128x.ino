@@ -10,6 +10,8 @@
 #include "print.h"
 #include "sx128x_hw_arduino.h"
 #include "sx128x.h"
+#include "eeprom.h"
+#include "tfs.h"
 //-----------------------------------------------------------------------------
 void ticker_callback() {
 
@@ -25,6 +27,12 @@ void setup() {
   
   // print "Hello"
   print_str("\r\n\r\nArduino started\r\n");
+
+  // EEPROM
+  EEPROM_BEGIN(2048); //!!!
+
+  // init TFS structure (initial set EEPROM space)
+  tfs_init(&Tfs, 1, 0, 1024); // num_pages (1 or 2), address, page_size
 
   // restore Opt
   opt_default(&Opt); // set to default all options

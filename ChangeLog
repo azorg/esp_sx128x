@@ -1,3 +1,6 @@
+2023.02.28:
+ * work under TFS for Arduino
+
 2023.02.27:
  * start project
  * add sx128x lib from STM32 project

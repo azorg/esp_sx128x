@@ -65,6 +65,9 @@
 #define PRINT_SERIAL
 #define DEBUG
 //-----------------------------------------------------------------------------
+#define TFS_ARDUINO // use Arduino "EEPROM.h"
+#define TFS_DEBUG // TFS debug output
+//-----------------------------------------------------------------------------
 #endif // CONFIG_H
 
 /*** end of "config.h" file ***/

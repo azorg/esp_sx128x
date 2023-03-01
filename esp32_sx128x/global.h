@@ -10,6 +10,7 @@
 #include "config.h"
 #include "ablink.h"
 #include "aticker.h"
+#include "tfs.h"
 #include "mrl.h"
 #include "sx128x.h"
 #include "opt.h"
@@ -19,6 +20,7 @@ extern ABlink Led;          // LED blinker
 extern uint8_t Button;      // onboart button EN state {0|1}
 extern ATicker Ticker;      // periodical ticker
 extern unsigned long Ticks; // tick counter
+extern tfs_t Tfs;           // Trivial EEPROM "File" System
 extern mrl_t Mrl;           // MicroRL object
 extern sx128x_t Radio;      // SX128x object
 extern opt_t Opt;           // All options (saved to FLASH)
