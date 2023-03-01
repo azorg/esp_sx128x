@@ -5,7 +5,10 @@ Install Arduino IDE + ESP32
 Go to https://www.arduino.cc/
 
 # 2. Add ESP32 support to Arduino IDE
-Loock https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html
+Look https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html
+
+## You may add ESP8266 supoort too:
+https://arduino-esp8266.readthedocs.io/en/latest/
 
 # 3. Install some additional packages (Debian/Ubuntu) 
 ```bash
