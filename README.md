@@ -9,22 +9,22 @@ ESP32 + SX128x test application
 Look INSTALL.md file
 
 ## Files:
- - `esp32_sx128x` - all Arduino sources directory
- - `esp32_sx128x.ino` - Arduino sketch file
+ - `esp_sx128x` - all Arduino sources directory
+ - `esp_sx128x.ino` - Arduino sketch file
  - `doc` - documents and help information, pinouts (ESP32, SX128x, E28) 
  - `lib` - library notes
  - `scrips` - help scripts
 
 ## Connect LoRa E28 (SX128x) module to ESP32 (30-pin) development board
 | ESP32  | ESP32 board  | E28        | Comment (in/ou} on MCU)  | pin name    | Color   |
-|:------:|:------------ |:---------- |:------------------------ |:----------- |:------- |
+|:------ |:------------ |:---------- |:------------------------ |:----------- |:------- |
 | 3V3    | XSL:1  (3V3) | `+3.3V`    | Vcc (power after LDO)    | -           | Red     |
 | GND    | XSL:2  (GND) | `GND`      | GND                      | -           | Black   |
 | GPIO4  | XSL:5  (D4)  | `NRESET`   | neg. reset (out)         | `NRST`      | Magenta |
-| GPIO16 | XSL:6  (RX2) | `DIO1`     | interrupt (in)           | `DIO1`      | Yellow  |
+| GPIO16 | XSL:6  (D16) | `DIO1`     | interrupt (in)           | `DIO1`      | Yellow  |
 |  -     | -            | `DIO2`     | -                        | -           | -       |
 |  -     | -            | `DIO3`     | -                        | -           | -       |
-| GPIO17 | XSL:7  (TX2) | `BUSY`     | BUSY (in)                | `BUSY`      | Orange  |
+| GPIO17 | XSL:7  (D17) | `BUSY`     | BUSY (in)                | `BUSY`      | Orange  |
 | GPIO5  | XSL:8  (D5)  | `NSS_CTS`  | SPI NSS (out)            | `NSS`       | Gray    |
 | GPIO18 | XSL:9  (D18) | `SCK_RTSN` | SPI SCK (out)            | `SCK`       | White   |
 | GPIO19 | XSL:10 (D19) | `MISO_TX`  | SPI MISO (in)            | `MISO`      | Blue    |

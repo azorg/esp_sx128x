@@ -270,26 +270,22 @@ int8_t sx128x_init(
 
   SX128X_DBG("init radio module");
 
-  // set Standby mode (XOSC)
-  retv = sx128x_standby(self, SX128X_STANDBY_XOSC);
-  if (retv != SX128X_ERR_NONE) return retv;
+  // wakeup and standby FIXME: magic!
+  sx128x_wakeup(self, SX128X_STANDBY_RC);
+  sx128x_status(self, &status);
+  sx128x_standby(self, SX128X_STANDBY_XOSC);
+  sx128x_status(self, &status);
+  sx128x_standby(self, SX128X_STANDBY_RC);
+  sx128x_status(self, &status);
 
-  // set Standby mode (RC)
-  retv = sx128x_standby(self, SX128X_STANDBY_RC);
-  if (retv != SX128X_ERR_NONE) return retv;
-
-  // get status (XOSC)
-  retv = sx128x_status(self, &status);
-  if (retv != SX128X_ERR_NONE) return retv;
-
-  // get status (RC)
+  // get status
   retv = sx128x_status(self, &status);
   if (retv != SX128X_ERR_NONE) return retv;
 
   sx128x_status_unpack(status, &mode, &stat);
 
   // check status of standby in RC
-  if (mode != 2 && mode != 3) // FIXME: magic (2-RC, 3-XOSC)
+  if (mode != 2) // FIXME: magic (2-RC, 3-XOSC)
   {
     SX128X_DBG("error: bad status=0x%02X (ChipMode=%i, but must be 2-RC or 3-XOSC)",
                (unsigned) status, (int) mode);

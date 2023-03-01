@@ -281,7 +281,7 @@ uint16_t tfs_erase(const tfs_t *self)
     int8_t rv = TFS_ERASE(paddr, self->page_size);
     if (rv)
     {
-      TFS_DBG("page %u erased on address=%u", (unsigned) pg, paddr);
+      TFS_DBG("page %u erased at address=%u", (unsigned) pg, paddr);
       paddr += self->page_size;
     }
     else

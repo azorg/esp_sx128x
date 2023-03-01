@@ -15,6 +15,7 @@
 //-----------------------------------------------------------------------------
 // all options (saved to / restore from FLASH)
 typedef struct {
+  uint8_t verbose;          // verbose level (0, 1, 2 or 3)
   uint8_t rxen;             // RXEN state {0|1}
   uint8_t txen;             // TXEN state {0|1}
   sx128x_pars_t radio;      // radio options of SX128x
@@ -28,7 +29,7 @@ extern "C"
 #endif // __cplusplus
 //-----------------------------------------------------------------------------
 void opt_default(opt_t *opt); // set to default all options
-void opt_read_from_flash(opt_t *opt, tfs_t *tfs, int verbose); // restore options from TFS
+void opt_read_from_flash(opt_t *opt, tfs_t *tfs); // restore options from TFS
 //-----------------------------------------------------------------------------
 #ifdef __cplusplus
 }

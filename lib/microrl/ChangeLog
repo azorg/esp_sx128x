@@ -1,3 +1,6 @@
+2022.03.01:
+ * test under Arduino, ESP32, ESP8266
+
 2022.12.26:
  * fix BUG with BACKSPACE (Ctrl+h): mrl_backspace()
  * update mrl_str2int();

@@ -1,5 +1,9 @@
 2023.03.01:
  * first TFS under Arduino ESP32/ESP8266
+ * add `if defined(ESP32)` and `if defined(ESP8266)` to "config.h"
+ * debug SX128x reset/wakeup/sleep/stadby
+ * maximal SPI stable frequency about 18 MHz for ESP32 + SX128x
+ * test GPIO interrupt on ESP32 (DIO1 from SX128x)
 
 2023.02.28:
  * work under TFS for Arduino

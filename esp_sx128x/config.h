@@ -6,11 +6,18 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 //-----------------------------------------------------------------------------
-//#define ARDUINO_ESP // ESP32 or ESP8266
-#define ARDUINO_ESP8266
-//#define ARDUINO_ESP32
+#if defined(ESP32)
+#  define ARDUINO_ESP32
+#  define HOST_NAME "ESP32"
+#elif defined(ESP8266)
+#  define ARDUINO_ESP8266
+#  define HOST_NAME "ESP8266"
+#else
+#  define ARDUINO_ESP
+#  define HOST_NAME "ESP"
+#endif
 //-----------------------------------------------------------------------------
-#define ABOUT_STRING "ESP32 + SX128x test"
+#define ABOUT_STRING HOST_NAME " + SX128x test"
 #define VERSION_SOFTWARE_STR "0.0.1" // software version
 #define VERSION_HARDWARE_STR "1"     // hardware revision
 
@@ -52,21 +59,31 @@
 //#define SX128X_SPI_ALTERNATE_PINS // only for ESP32, not for ESP8266
 //#ifndef SX128X_HW_SPI vspi // or hspi or (&SPI)
 
-#define SX128X_SPI_CLOCK 1000000UL // 1 MHz
+#define SX128X_SPI_CLOCK 12000000UL // 12 MHz
 //-----------------------------------------------------------------------------
 #define SX128X_USE_EXTRA   // use some extra functions
 #define SX128X_USE_BUGFIX  // use bug fix of known limitations
 //-----------------------------------------------------------------------------
-#define SX128X_DEBUG       // debug print
-#define SX128X_DEBUG_IRQ   // debug verbose IRQ print
-#define SX128X_DEBUG_EXTRA // extra debug verbose print
+//#define SX128X_DEBUG       // debug print
+//#define SX128X_DEBUG_IRQ   // debug verbose IRQ print
+//#define SX128X_DEBUG_EXTRA // extra debug verbose print
 //-----------------------------------------------------------------------------
+#define TFS_ARDUINO
+//#define TFS_DEBUG // TFS debug output
+#define TFS_PAGE_SIZE 1024
+#define TFS_PAGE_NUM 2
+//-----------------------------------------------------------------------------
+#define USE_DIO1_INTERRUPT
 #define CLI_HELP
+#define EXTRA
 #define PRINT_SERIAL
-#define DEBUG
 //-----------------------------------------------------------------------------
-#define TFS_ARDUINO // use Arduino "EEPROM.h"
-#define TFS_DEBUG // TFS debug output
+// selected time function
+#if 1
+#  define TIME_FUNC() micros() // us
+#else
+#  define TIME_FUNC() millis() // ms
+#endif
 //-----------------------------------------------------------------------------
 #endif // CONFIG_H
 
