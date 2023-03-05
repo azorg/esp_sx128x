@@ -16,11 +16,15 @@ sx128x_t Radio;          // SX128x object
 opt_t Opt;               // All options (saved to FLASH)
 uint8_t RXEN;            // RXEN state {0|1}
 uint8_t TXEN;            // TXEN state {0|1}
+AFsm Fsm;                // FSM
 
-unsigned long t_tx_start  = 0; // TX start time
-unsigned long t_tx_done   = 0; // TX done time
-unsigned long t_rx_done   = 0; // RX done time
-unsigned long t_rx_done_p = 0; // RX done time (previous)
+uint32_t Seconds = 0;
+uint8_t Autostarted = 0;
+
+unsigned long T_tx_start  = 0; // TX start time
+unsigned long T_tx_done   = 0; // TX done time
+unsigned long T_rx_done   = 0; // RX done time
+unsigned long T_rx_done_p = 0; // RX done time (previous)
 //-----------------------------------------------------------------------------
 // print SX128x RSSI [dBm]
 void print_rssi(uint8_t rssi)

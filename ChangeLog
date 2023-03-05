@@ -1,3 +1,8 @@
+2023.03.05:
+ * add FSM (afsm.cpp/afsm.h)
+ * add TODO file
+ * add autostart
+
 2023.03.01:
  * first TFS under Arduino ESP32/ESP8266
  * add `if defined(ESP32)` and `if defined(ESP8266)` to "config.h"

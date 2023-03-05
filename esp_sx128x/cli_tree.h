@@ -135,11 +135,24 @@ cli_cmd_t const cli_tree[] = {
   _F(170,  -1, cli_data,            "data",       " [b0 b1..]",        "get/set TX data bytes")
   _F(171, 170, cli_data_fill,       "fill",       " [size value]",     "fill TX data bytes")
   _F(172, 170, cli_data_size,       "size",       " [size]",           "get/set RX/TX data size")
+  
+  _F(175,  -1, cli_code,            "code",       " [101001]",         "get/set OOK code")
 
   _F(180,  -1, cli_status,          "status",     "",                  "get packet status")
 
   _F(190,  -1, cli_send,            "send",       " [to]",             "send packet [timeout] (Strl+S)")
   _F(191,  -1, cli_recv,            "recv",       " [size to]",        "receive packet [timeout] (Strl+V)")
+  
+  _F(200,  -1, cli_mode,            "mode",       " [0..9]",           "get/set FSM mode (0-CW, 1-OOK, 2-TX, 3-RX, 4-RQ, 5-RP, 6-RM, 7-RS, 8-AR, 9-SG)")
+  
+  _F(201,  -1, cli_fsm,             "fsm",        " [T dT dC WUT]",    "get/set FSM parameters (T-period[ms], dT-CW[ms], dC-code[ms], WUT-wakeup time[ms])")
+  
+  _F(202,  -1, cli_sweep,           "sweep",      " [Fmin Fmax S]",    "get/set sweep generator pars (Fmin/Fmax - kHz, S - kHz/sec)")
+  
+  _F(203,  -1, cli_start,           "start",      "",                  "start FSM loop (Ctrl+S)")
+  _F(204,  -1, cli_stop,            "stop",       "",                  "stop FSM loop (Ctrl+C)")
+
+  _F(205,  -1, cli_autostart,       "autostart",  " [1|0 delay]",      "get/set autostart on reboot flag and delay [sec]")
 
   _F( -1,  -1, NULL,                NULL,         NULL,                NULL)
 };

@@ -1,0 +1,2 @@
+[-] add RXEN/TXEN direction to FSM
+[-] fix bug "unstable hardware reset"

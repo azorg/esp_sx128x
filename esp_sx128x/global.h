@@ -15,6 +15,7 @@
 #include "sx128x.h"
 #include "sx128x_hw_arduino.h"
 #include "opt.h"
+#include "afsm.h"
 //-----------------------------------------------------------------------------
 #ifndef INLINE
 #  define INLINE static inline
@@ -30,11 +31,15 @@ extern sx128x_t Radio;      // SX128x object
 extern opt_t Opt;           // All options (saved to EEPROM)
 extern uint8_t RXEN;        // RXEN state {0|1}
 extern uint8_t TXEN;        // TXEN state {0|1}
+extern AFsm Fsm;            // FSM
 
-extern unsigned long t_tx_start;  // TX start time
-extern unsigned long t_tx_done;   // TX done time
-extern unsigned long t_rx_done;   // RX done time
-extern unsigned long t_rx_done_p; // RX done time (previous)
+extern uint32_t Seconds;
+extern uint8_t Autostarted;
+
+extern unsigned long T_tx_start;  // TX start time
+extern unsigned long T_tx_done;   // TX done time
+extern unsigned long T_rx_done;   // RX done time
+extern unsigned long T_rx_done_p; // RX done time (previous)
 //-----------------------------------------------------------------------------
 #ifdef __cplusplus
 extern "C"

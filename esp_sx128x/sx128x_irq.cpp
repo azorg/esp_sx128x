@@ -68,8 +68,8 @@ void sx128x_irq()
   if (irq & SX128X_IRQ_TX_DONE)
   { // TX done
     uint32_t dt;
-    t_tx_done = sx128x_hw_irq_time;
-    dt = t_tx_done - t_tx_start;
+    T_tx_done = sx128x_hw_irq_time;
+    dt = T_tx_done - T_tx_start;
     if (Opt.verbose) print_uval("TxDone: dt=", dt);
     Led.off();
   }
@@ -77,9 +77,9 @@ void sx128x_irq()
   if (irq & SX128X_IRQ_RX_DONE)
   { // RX done
     uint32_t dt;
-    t_rx_done_p = t_rx_done;
-    t_rx_done = sx128x_hw_irq_time;
-    dt = t_rx_done - t_rx_done_p;
+    T_rx_done_p = T_rx_done;
+    T_rx_done = sx128x_hw_irq_time;
+    dt = T_rx_done - T_rx_done_p;
     if (Opt.verbose) print_uval("RxDone: dT=", dt);
     recv = 1;
     Led.blink();

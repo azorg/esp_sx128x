@@ -81,11 +81,19 @@
 #define PRINT_SERIAL
 //-----------------------------------------------------------------------------
 // selected time function
-#if 1
+#if 0
 #  define TIME_FUNC() micros() // us
+#  define TIME_FACTOR 1000
 #else
 #  define TIME_FUNC() millis() // ms
+#  define TIME_FACTOR 1
 #endif
+//-----------------------------------------------------------------------------
+#define OPT_DATA_SIZE 128 // max saved packet size [bytes]
+#define OPT_CODE_SIZE 15  // max saved OOK code size
+//-----------------------------------------------------------------------------
+#define OPT_AUTOSTART       0 // auto start FSM TX on reboot {0|1}
+#define OPT_AUTOSTART_DELAY 3 // auto start delay [sec]
 //-----------------------------------------------------------------------------
 #endif // CONFIG_H
 

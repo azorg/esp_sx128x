@@ -1,0 +1,218 @@
+2023.02.27:
+ * начал перенос библиотеки SX128x для Arduinio ESP32/ESP8266
+   (см. ChangeLog в корне проекта)
+
+-------------------------------------------------------------------------------
+
+2022.10.31 <azorg>
+ * cделал раздельное упралвение SyncWords и SWT для FLRC/GFSK
+ ! еще одна ошибка в чипе: при переключении GFSK<->FLRC слетает SWT
+
+2022.10.30 <azorg>
+ + sx128x_wakeup()
+ - убрал многочисленные timeoout в обертках SPI
+ + sx128x_gain_string[]
+ * сделал "более надежный" sx128x_standby()
+ ! Все-таки подтвердил, что RXEN/TXEN нужно управлять для "E28 2G4M27S"
+ ! fix bug in sx128x_packet_flrc() - remove whitening
+ + разобрался с FLRC:
+   sw_mode: 3, 5, 6, 7 почему-то не работают
+ + sx128x_set_sw_tolerance()
+ - управление толератностью (reg 0x9CD) пока отключил
+   (требуется различное управление в GFSK и FLRC)
+ ! в FLRC еще есть глюки с данными (частично исправил)
+ ! Приходится обрабатывать все ошибки приёма "битых" пакетов
+
+2022.10.29 <azorg>
+ * пропатчил dfu-util (надоели глюки с загрузкой Black Pill)
+   см. https://github.com/azorg/dfu-util
+ + cli_radio_ver()
+
+2022.10.28 <azorg>
+ * подбирал "магические" числа для целочисленого вычисления
+   дистанции в дециметрах (см. расчёт distance)
+ * понял, что в режиме Ranging нет полезной нагрузи (payload)
+ ! GFSK+LoRa+Ranging - работает
+ ! FLRC - пока НЕ работает
+
+2022.10.27 <azorg>
+ * fix some bugs (GFSK, Ranging result)
+ + sx128x_to_send()
+ ! Пока не разобрался с Ranging:
+   Перед сеансом работы master<->slave приходится передать пакеты в редиме LoRa.
+   Иначе приходят пакеты длиной 255 байт!
+   Если ранее хост (master или slave) не получал пакета, то в процессе Ranging
+   он считает, что получает пакет длиной 255 байт! BUG!!!
+   ...
+
+2022.10.26 <azorg>
+ * refaсtor sx128x_get_rx_status() and sx128x_get _recv()
+ + add print_rssi() and print_snr()
+ * update sx128x_fei_lora()
+ * fix bug in MicroRL (BACKSPACE)
+ * работа на ошибками, отладка передачи пакетов
+ * add print_uint_ex() to print.h/print.c
+
+2022.10.25 <azorg>
+ + cli_verbose()
+ + cli_hw_txen()
+ * cli_hw_rxen()
+
+2022.10.24 <azorg>
+ + cli_ranging_result()
+ + cli_flrc_mod()
+ + cli_flrc_packet()
+ + cli_gfsk_mod()
+ + cli_gfsk_packet()
+ + cli_ble()
+ + cli_def()
+ + cli_ranging_advanced()
+ * вынес opt.c/opt.h
+ * вынес version.h
+ * прошёлся по bsp (посомтрел, что менял Д.М. и что есще осталось под STM32F4)
+ * начал писать отладочный код работки прерываний от SX1280 (DIO1)
+ ! Уфф! Вроде реализовал все (почти?) функции CLI для управления конфигурацией SX1280
+ * начал писать обработку прерываний - осталось распаковать результаты в CLI
+
+2022.10.23 <azorg>
+ + cli_radio_lna()
+ + cli_radio_gain()
+ + cli_radio_dcdc()
+ + cli_radio_irq()
+ + cli_XXX...
+ + ... (работа с наполнением функциями CLI)
+ + cli_fixed()
+ + cli_data()
+ + cli_data_fill()
+ + cli_data_size()
+ ! все-таки похоже, что аппаратный сброс SX1280 нужен...
+
+2022.10.22 <azorg>
+ + sx128x_ranging_get_calibration()
+ + sx128x_ranging_set_calibration()
+ * update SPI wrappers (API to hardware)
+ * start DEBUG!!!
+
+2022.10.21 <azorg>
+ + sx128x_address_ble()
+ + sx128x_crc_init_ble()
+ + sx128x_send()
+ + sx128x_receive()
+ + sx128x_advanced_ranging()
+ + sx128x_advanced_ranging_address()
+ * update sx128x_ranging_result()
+ * TODO: еще нужно пройтись по Errata
+
+2022.10.20 <azorg>
+ + sx128x_get_rx_buffer()
+ + sx128x_packet_status_lora()
+ + sx128x_packet_status()
+ + sx128x_rssi_inst()
+ + sx128x_irq_dio_mask()
+ + sx128x_get_irq()
+ + sx128x_clear_irq()
+ + sx128x_dcdc()
+ + sx128x_save_context()
+ + sx128x_lna_boost()
+ + sx128x_rx_gain()
+ ! Уфф! Закончил почти все основные функции из datasheet!
+ ! Осталось функции агрегаторы  send()/recv() и т.п. как для SX126x
+ ! Отсталось реализовать Errata, CLI и все отладить
+
+2022.10.19 <azorg>
+ + lib/sx128x/README.md (начало)
+ * начало работы над "Ranging"
+ + sx128x_ranging_role()
+ + sx128x_ranging_master_address()
+ + sx128x_ranging_slave_address()
+ + sx128x_ranging_result()
+ * можно вернуться и продолжить со страницы 92
+
+2022.10.18 <azorg>
+ + sx128x_mod_flrc()
+ + sx128x_packet_flrc()
+ + sx128x_set_sw()
+ + sx128x_mod_gfsk()
+ + sx128x_packet_gfsk()
+ + sx128x_mod_ble()
+ + sx128x_packet_ble()
+
+2022.10.17 <azorg>
+ + sx128x_status_mode_string[8]
+ + sx128x_status_cmd_string[8]
+ + sx128x_status_unpack()
+ * update cli_radio_status_print()
+ * update sx128x_status()
+ * fill all register maps (Table 13-1: List of Registers)
+ + sx128x_preamble_pack() - экспоненциальная упаковка дины преамбулы в 1 байт
+ + sx128x_packet_lora()
+ + sx128x_set_sw_lora()
+ + sx128x_get_lora_fei()
+
+2022.10.16 <azorg>
+ + sx128x_sleep()
+ + sx128x_standby()
+ + sx128x_get_standby()
+ + sx128x_fs()
+ + sx128x_tx()
+ + sx128x_rx()
+ + sx128x_rx_duty_cycle()
+ + sx128x_long_preamble()
+ + sx128x_cad()
+ + sx128x_tx_wave()
+ + sx128x_tx_preamble()
+ + sx128x_auto_tx_ble()
+ + sx128x_auto_fs()
+ + sx128x_mode()
+ + sx128x_get_mode()
+ + sx128x_read_mode()
+ + sx128x_last_status()
+ + sx128x_set_frequency()
+ + sx128x_get_frequency()
+ + sx128x_set_power()
+ + sx128x_get_power()
+ + sx128x_set_cad()
+ + sx128x_get_cad()
+ + sx128x_set_buffer()
+ + cli_radio_reg()
+ + sx128x_mod_lora()
+ * продолжил чиение datasheet на SX1280/SX1281:
+   * остановился на стр. 89 из 158
+
+2022.10.15 <azorg>
+ + sx128x_status()
+ + sx128x_reg_write()
+ + sx128x_reg_read()
+ + sx128x_buf_write()
+ + sx128x_buf_read()
+ * продолжил чиение datasheet на SX1280/SX1281:
+   * остановился на стр. 76 из 158
+
+2022.10.12 <azorg>
+ + sx128x_code2freq()
+ + sx128x_freq2code()
+ * продолжил чиение datasheet на SX1280/SX1281:
+   * остановился на стр. 69 из 158
+
+2022.10.09 <azorg>
+ * начал читать внимательно datasheet на SX1280/SX1281:
+   * диапазон частот 2400...2500 мГц, шаг 198 ГЦ
+   * выходная мощность: -18...12.5dBm
+   * AGC можно отколючить, есть ручное упралвение усилением
+   * есть режим повышения чувствительности приемника на 3дБ с повышенем
+     потебления на 700мкА
+   * есть DC/DC импульсный (нужен дроссель), есть втсроеный LDO
+   * есть три режима: LoRa, FLRC, (GFSK)
+   * есть режим излучения синусоиды!
+   * есть зеркальный канал на частоте F0 - 3.25МГц или F0 - 2.96МГц
+   * к Wi-Fi и Bluetooth должен быть "имунитет" (т.к. работа в одном диапазоне)
+   * F0 = Fosc / 2**18 * rf_code (Fosc=52МГц) т.е. шаг 198.3642578125 Гц
+   * RC генераторы есть на 64кГц (sleep) и 13 МГц (работа SPI)
+   * рекомендуется колебровать оба RC генератора
+   * FLRC = Fast Long Range Communication
+   * остановился на стр. 41 из 158
+
+2022.10.08 <azorg>
+ * задумал собрать тектовый проект Blackpill + E28 (SX1280)
+ * начал подбирать документацию на SX1280 и т.д.
+

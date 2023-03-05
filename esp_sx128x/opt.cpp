@@ -5,12 +5,14 @@
 #include <string.h>
 #include "config.h"
 #include "opt.h"
+#include "afsm.h"
 #include "print.h"
 //-----------------------------------------------------------------------------
 // set to default all options
 void opt_default(opt_t *opt)
 {
   const uint8_t data[] = OPT_DATA_DEFAULT;
+  const char    code[] = OPT_CODE_DEFAULT;
 
   opt->verbose = VERBOSE;
 
@@ -23,6 +25,18 @@ void opt_default(opt_t *opt)
   // TX/RX packet data
   opt->data_size = sizeof(data);
   memcpy((void*) opt->data, (const void*) data, sizeof(data));
+  
+  // OOK code
+  opt->code_size = sizeof(code);
+  memcpy((void*) opt->code, (const void*) code, sizeof(code));
+  opt->code[sizeof(code)] = '\0';
+  
+  // FSM options
+  memcpy((void*) &opt->fsm, (const void*) &afsm_pars_default,
+         sizeof(afsm_pars_t));
+  
+  opt->autostart = OPT_AUTOSTART; // auto start FSM TX on reboot
+  opt->delay = OPT_AUTOSTART_DELAY; // auto start delay [sec]
 }
 //-----------------------------------------------------------------------------
 // restore options from TFS

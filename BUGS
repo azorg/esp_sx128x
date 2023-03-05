@@ -1,2 +1,2 @@
-- hardware reset SX128x is not order (sx128x_hw_reset())
+- hardware reset SX128x don't work good and stable (sx128x_hw_reset())
 

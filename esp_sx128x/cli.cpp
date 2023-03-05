@@ -756,11 +756,10 @@ void cli_radio_tx(int argc, char* const argv[], const cli_cmd_t *cmd)
   if (argc > 1) base    = (uint8_t)  mrl_str2int(argv[1], base,    10);
   if (base > 3) base = 3;
 
-
   retv = sx128x_tx(&Radio, timeout, base);
   if (retv != SX128X_ERR_NONE) return;
 
-  t_tx_start = TIME_FUNC();
+  T_tx_start = TIME_FUNC();
 
   Led.on();
 
@@ -778,8 +777,8 @@ void cli_radio_tx(int argc, char* const argv[], const cli_cmd_t *cmd)
 //-----------------------------------------------------------------------------
 void cli_radio_rx(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // radio rx [to base]
-  uint16_t timeout = 0xFFFF;
-  uint8_t base = 0x02; // 1ms
+  uint16_t timeout = SX128X_RX_TIMEOUT_CONTINUOUS; // RX Continuous mode
+  uint8_t base = SX128X_TIME_BASE_1MS; // 1ms
   int8_t retv;
 
   Led.off();
@@ -1840,6 +1839,22 @@ void cli_data_size(int argc, char* const argv[], const cli_cmd_t *cmd)
   print_uval("data size=", Opt.data_size);
 }
 //-----------------------------------------------------------------------------
+void cli_code(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // code [101001]
+  if (argc > 0)
+  { // set OOK code
+    int i, size = strlen(argv[0]);
+    if (size > sizeof(Opt.code) - 1) size = sizeof(Opt.code) - 1; 
+    memcpy((void*) Opt.code, (const void*) argv[0], size);
+    Opt.code[size] = '\0';
+    Opt.code_size = size;
+    for (i = 0; i < size; i++) if (Opt.code[i] != '0') Opt.code[i] = '1';
+  }
+  print_str("code: ");
+  print_str(Opt.code);
+  print_str("\r\n");
+}
+//-----------------------------------------------------------------------------
 void cli_status(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // status
   int8_t retv;
@@ -1954,7 +1969,7 @@ void cli_send(int argc, char* const argv[], const cli_cmd_t *cmd)
                      Opt.radio.fixed, timeout, SX128X_TIME_BASE_1MS);
   if (retv != SX128X_ERR_NONE) return;
 
-  t_tx_start = TIME_FUNC();
+  T_tx_start = TIME_FUNC();
 
   Led.on();
   
@@ -1986,10 +2001,78 @@ void cli_recv(int argc, char* const argv[], const cli_cmd_t *cmd)
   print_flush();
 }
 //=============================================================================
+void cli_mode(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // mode [0..9]
+  if (argc > 0)
+    Opt.fsm.mode = (uint8_t) LIMIT(mrl_str2int(argv[0], 0, 10), 0, AFSM_MODES-1);
+
+  print_str("mode=");
+  print_uint(Opt.fsm.mode);
+
+  if (Opt.verbose)
+  {
+    print_str(" (");
+    print_str(afsm_mode_string[Opt.fsm.mode]);
+    print_chr(')');
+  }
+  print_eol();
+}
+//-----------------------------------------------------------------------------
+void cli_fsm(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // fsm [T dT dC WUT]
+  if (argc > 0) Opt.fsm.t   = mrl_str2int(argv[0], Opt.fsm.t,   10);
+  if (argc > 1) Opt.fsm.dt  = mrl_str2int(argv[1], Opt.fsm.dt,  10);
+  if (argc > 2) Opt.fsm.dc  = mrl_str2int(argv[2], Opt.fsm.dc,  10);
+  if (argc > 4) Opt.fsm.wut = mrl_str2int(argv[4], Opt.fsm.wut, 10);
+
+  print_str("fsm: t="); print_uint(Opt.fsm.t);
+  print_str("ms dt=");  print_uint(Opt.fsm.dt);
+  print_str("ms dc=");  print_uint(Opt.fsm.dc);
+  print_str("ms wut="); print_uint(Opt.fsm.wut);
+  print_str("ms\r\n");
+}
+//-----------------------------------------------------------------------------
+void cli_sweep(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // sweep [Fmin[kHz] Fmax[kHz] S[kHz/sec]]
+  if (argc > 0) Opt.fsm.sweep_min = mrl_str2int(argv[0], AFSM_SWEEP_MIN, 10) * 1000;
+  if (argc > 1) Opt.fsm.sweep_max = mrl_str2int(argv[1], AFSM_SWEEP_MAX, 10) * 1000;
+  if (argc > 2) Opt.fsm.sweep_f   = mrl_str2int(argv[2], AFSM_SWEEP_F,   10);
+
+  print_str("sweep: Fmin="); print_uint(Opt.fsm.sweep_min / 1000);
+  print_str("kHz Fmax=");    print_uint(Opt.fsm.sweep_max / 1000);
+  print_str("kHz S=");       print_int( Opt.fsm.sweep_f);
+  print_str("kHz/sec\r\n");
+}
+//-----------------------------------------------------------------------------
+void cli_start(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // start
+  Fsm.start();
+}
+//-----------------------------------------------------------------------------
+void cli_stop(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // stop
+  Fsm.stop();
+}
+//-----------------------------------------------------------------------------
+void cli_autostart(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // autostart [1|0 delay]
+  if (argc > 0) Opt.autostart = !!mrl_str2int(argv[0], 0,         10);
+  if (argc > 1) Opt.delay     =   mrl_str2int(argv[1], Opt.delay, 10);
+
+  print_str("autostart=");
+  print_uint(Opt.autostart);
+  print_str(" delay=");
+  print_uint(Opt.delay);
+  print_str("sec\r\n");
+}
+//=============================================================================
 #ifdef MRL_USE_CTRL_C
 // Ctrl+C callback
 static void cli_sigint_cb()
 {
+  print_str("\r\n^C\r\n");
+  print_str("stop\r\n");
+  Fsm.stop();
   mrl_prompt(&Mrl);
 }
 #endif // MRL_USE_CTRL_C
@@ -2031,14 +2114,16 @@ void cli_loop()
   if (key == CLI_KEYCODE_CTRL_S) // Ctrl+S pressed
   {
     print_str("\r\n^S\r\n");
-    //...
+    print_str("start\r\n");
+    Fsm.start();
     mrl_refresh(&Mrl);
   }
 #ifndef MRL_USE_CTRL_C
   else if (key == CLI_KEYCODE_CTRL_C) // Ctrl+C pressed
   {
     print_str("\r\n^C\r\n");
-    //...
+    print_str("stop\r\n");
+    Fsm.stop();
     mrl_prompt(&Mrl);
   }
 #endif // !MRL_USE_CTRL_C
