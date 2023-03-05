@@ -354,7 +354,7 @@ uint16_t tfs_read(const tfs_t *self,                  // EEPROM space
                   uint16_t *size,                     // size of record
                   uint16_t *cnt)                      // (re)write counter
 {
-  unsigned addr;;
+  unsigned addr;
   uint16_t cs, err = tfs_get(self, &addr, size, cnt, &cs);
 
   if ((err & (~TFS_ERR_DELETED)) != TFS_SUCCESS || *size == 0)

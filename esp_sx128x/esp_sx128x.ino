@@ -16,7 +16,7 @@
 //-----------------------------------------------------------------------------
 void ticker_callback() {
 
-  if ((Ticks % TICKER_HZ) == 0) {
+  if ((Ticks % TICKER_HZ) == 0 && Ticks >= TICKER_HZ) {
     Seconds++;
   }
 
@@ -66,9 +66,6 @@ void setup() {
                             &Opt.radio, NULL);
   print_ival("sx128x_init() return ", (int) retv);
   
-  // init CLI (MicroRL)
-  cli_init();
-
   // setup blink LED
   Led.begin(LED_PIN, LED_INVERT, LED_BLINK_ON, LED_BLINK_OFF);
 
@@ -78,6 +75,7 @@ void setup() {
 
   // setup ticker
   Ticker.begin(ticker_callback, TICKER_MS, true, millis());
+  Ticks = 0;
   
   // init FSM
   Fsm.begin(&Led,             // on board LED
@@ -90,22 +88,25 @@ void setup() {
             &Radio);          // SX128x object
   
   Seconds = 0;
-  Autostarted = 0;
-  print_uval("autostart=", Opt.autostart);
+  print_uval("autostart=", Autostart = Opt.autostart);
+  
+  // init CLI (MicroRL)
+  cli_init();
   print_flush();
 }
 //-----------------------------------------------------------------------------
 void loop() {
-  unsigned long t = millis();
-  Led.yield(t);
-  Ticker.yield(t);
+  unsigned long ms = millis();
+  unsigned long t = TIME_FUNC();
+  Led.yield(ms);
+  Ticker.yield(ms);
   Fsm.yield(t);
 
 #ifndef USE_DIO1_INTERRUPT
   // periodic check IRQ (DIO1)
   sx128x_hw_check_dio1();
 #endif // !USE_DIO1_INTERRUPT
-  
+ 
   // check SX128x IRQ (DIO1) flag
   sx128x_irq();
   
@@ -114,25 +115,26 @@ void loop() {
   
   // check onboard button
   uint8_t btn = digitalRead(BUTTON_PIN);
-  if (btn == 0 && Button == 1)
-  {
-    print_str("\r\nButton BOOT pressed (t=");
-    print_uint(t);
+  if (btn == 0 && Button == 1) {
+    print_str("\r\nButton BOOT pressed (ms=");
+    print_uint(ms);
     print_str(")\r\n");
     mrl_refresh(&Mrl);
   }
   Button = btn;
-
+  
   // check autostart
-  if (!Autostarted && Opt.autostart && Seconds >= Opt.delay) {
-     Autostarted = 1;
-     print_str("\r\nautostart: t=");
-     print_uint(t);
-     print_str(" seconds=");
-     print_uint(Seconds);
-     print_eol();
-     Fsm.start();
+  if (Autostart && Seconds >= Opt.delay) {
+    Autostart = 0;
+    print_str("\r\nautostart: ms=");
+    print_uint(ms);
+    print_str(" seconds=");
+    print_uint(Seconds);
+    print_eol();
+    Fsm.start();
+    mrl_refresh(&Mrl);
   }
+
 }
 //-----------------------------------------------------------------------------
 /*** end of "esp32_sx128x.ino" file ***/

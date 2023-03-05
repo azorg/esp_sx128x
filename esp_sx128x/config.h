@@ -81,7 +81,7 @@
 #define PRINT_SERIAL
 //-----------------------------------------------------------------------------
 // selected time function
-#if 0
+#if 1
 #  define TIME_FUNC() micros() // us
 #  define TIME_FACTOR 1000
 #else

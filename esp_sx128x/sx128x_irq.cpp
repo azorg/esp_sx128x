@@ -65,6 +65,10 @@ void sx128x_irq()
     print_str(" ]\r\n");
   } // if (verbose)
 
+  // switch FSM to next state
+  // FIXME
+  Fsm.txrx_done();
+
   if (irq & SX128X_IRQ_TX_DONE)
   { // TX done
     uint32_t dt;

@@ -41,7 +41,7 @@ void AFsm::start_fsm(unsigned long t)
       txrx_start = 1;
     }
   }
-  else if (_start && (t % (1000 * TIME_FACTOR)) == 0) // sync TX/RX start to seconds
+  else if (_start)
   { // start period timer
     _start     = 0;
     _run       = 1;
@@ -164,12 +164,10 @@ void AFsm::txrx_fsm(unsigned long t)
   }
   else if (txrx_start)
   { // state 1 -> goto state 2 (wakeup radio)
-    if (Opt.verbose > 2)
+    if (Opt.verbose >= 3)
     {
-      print_str("\rtxrx_start (t=");
-      print_uint(t);
-      print_str(")\r\n");
-      mrl_prompt(&Mrl);
+      print_uval("\rtxrx_start: t=", t);
+      mrl_refresh(&Mrl);
     }
     txrx_start  = 0;
     wus         = pars->wut ? pars->wut : 1;
@@ -181,7 +179,7 @@ void AFsm::txrx_fsm(unsigned long t)
   if (Opt.verbose && retv != SX128X_ERR_NONE)
   {
     print_ival("\r\nerror in AFsm::txrx_fsm(): err=", retv);
-    mrl_prompt(&Mrl);
+    mrl_refresh(&Mrl);
   }
 }
 //-----------------------------------------------------------------------------

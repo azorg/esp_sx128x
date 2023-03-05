@@ -25,6 +25,7 @@ extern ABlink Led;          // LED blinker
 extern uint8_t Button;      // onboart button EN state {0|1}
 extern ATicker Ticker;      // periodical ticker
 extern unsigned long Ticks; // tick counter
+extern uint32_t Seconds;    // seconds from start
 extern tfs_t Tfs;           // Trivial EEPROM "File" System
 extern mrl_t Mrl;           // MicroRL object
 extern sx128x_t Radio;      // SX128x object
@@ -32,9 +33,7 @@ extern opt_t Opt;           // All options (saved to EEPROM)
 extern uint8_t RXEN;        // RXEN state {0|1}
 extern uint8_t TXEN;        // TXEN state {0|1}
 extern AFsm Fsm;            // FSM
-
-extern uint32_t Seconds;
-extern uint8_t Autostarted;
+extern uint8_t Autostart;   // auto start flag
 
 extern unsigned long T_tx_start;  // TX start time
 extern unsigned long T_tx_done;   // TX done time

@@ -1,2 +1,6 @@
 [-] add RXEN/TXEN direction to FSM
 [-] fix bug "unstable hardware reset"
+[-] debug requester/responder FSM
+[-] debug rangaring master/slave
+[-] debug advanced rangaring
+

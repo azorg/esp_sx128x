@@ -348,6 +348,8 @@ void cli_sys_time(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // sys time
   unsigned long ms = millis();
   unsigned long us = micros();
+  print_uval("seconds  = ", Seconds);
+  print_uval("ticks    = ", Ticks);
   print_uval("millis() = ", ms);
   print_uval("micros() = ", us);
 }
@@ -1038,17 +1040,31 @@ void cli_radio_rxdc(int argc, char* const argv[], const cli_cmd_t *cmd)
 //-----------------------------------------------------------------------------
 void cli_radio_wave(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // radio wave
-  int8_t retv = sx128x_tx_wave(&Radio);
+  int8_t retv = sx128x_standby(&Radio, SX128X_STANDBY_XOSC);
   if (retv != SX128X_ERR_NONE) return;
+
+  retv = sx128x_tx_wave(&Radio);
+  if (retv != SX128X_ERR_NONE) return;
+  
   Led.on();
+  setRXEN(0);
+  setTXEN(1);
+  
   print_str("continuous wave\r\n");
 }
 //-----------------------------------------------------------------------------
 void cli_radio_preamble(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // radio preamble
-  int8_t retv = sx128x_tx_preamble(&Radio);
+  int8_t retv = sx128x_standby(&Radio, SX128X_STANDBY_XOSC);
   if (retv != SX128X_ERR_NONE) return;
+  
+  retv = sx128x_tx_preamble(&Radio);
+  if (retv != SX128X_ERR_NONE) return;
+
   Led.on();
+  setRXEN(0);
+  setTXEN(1);
+
   print_str("continuous preamble\r\n");
 }
 //-----------------------------------------------------------------------------

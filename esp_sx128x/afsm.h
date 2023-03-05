@@ -175,6 +175,9 @@ public:
 
   // get run state
   uint8_t run() const { return _run; }
+
+  // TX/RX done by TxDone/RxDone interrupt
+  void txrx_done() { txrx = 0; }
   
   // periodic call from main loop (t = millis())
   void yield(unsigned long t) {

@@ -10,6 +10,7 @@ ABlink Led;              // LED blinker
 uint8_t Button;          // onboart button EN state {0|1}
 ATicker Ticker;          // periodical ticker
 unsigned long Ticks = 0; // tick counter
+uint32_t Seconds = 0;    // secondr from start
 tfs_t Tfs;               // Trivial EEPROM "File" System
 mrl_t Mrl;               // MicroRL object
 sx128x_t Radio;          // SX128x object
@@ -17,9 +18,7 @@ opt_t Opt;               // All options (saved to FLASH)
 uint8_t RXEN;            // RXEN state {0|1}
 uint8_t TXEN;            // TXEN state {0|1}
 AFsm Fsm;                // FSM
-
-uint32_t Seconds = 0;
-uint8_t Autostarted = 0;
+uint8_t Autostart = 0;   // auto start flag
 
 unsigned long T_tx_start  = 0; // TX start time
 unsigned long T_tx_done   = 0; // TX done time
