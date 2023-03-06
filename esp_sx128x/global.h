@@ -34,11 +34,6 @@ extern uint8_t RXEN;        // RXEN state {0|1}
 extern uint8_t TXEN;        // TXEN state {0|1}
 extern AFsm Fsm;            // FSM
 extern uint8_t Autostart;   // auto start flag
-
-extern unsigned long T_tx_start;  // TX start time
-extern unsigned long T_tx_done;   // TX done time
-extern unsigned long T_rx_done;   // RX done time
-extern unsigned long T_rx_done_p; // RX done time (previous)
 //-----------------------------------------------------------------------------
 #ifdef __cplusplus
 extern "C"

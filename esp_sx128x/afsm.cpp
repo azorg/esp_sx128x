@@ -119,21 +119,29 @@ void AFsm::txrx_fsm(unsigned long t)
       }
       else if (pars->mode == AFSM_TX || pars->mode == AFSM_RQ)
       { // TX or requester -> send packet)
-        T_tx_start = t; // FIXME: global variable
+        t_tx_start = t;
+        power = 1;
         led->on();
+        setRXEN(0);
+        setTXEN(1);
         retv = sx128x_send(radio, data, *data_size, *fixed,
                            SX128X_TX_TIMEOUT_SINGLE, SX128X_TIME_BASE_1MS);
       }
       else if (pars->mode == AFSM_RM)
       { // ranging master
-        T_tx_start = t; // FIXME: global variable
+        t_tx_start = t;
+        power = 1;
         led->on();
+        setRXEN(0);
+        setTXEN(1);
         retv = sx128x_tx(radio, SX128X_TX_TIMEOUT_SINGLE, SX128X_TIME_BASE_1MS);
       }
       else if (pars->mode == AFSM_RS)
       { // ranging slave
         _run = 0; // stop periodic timer
         txrx = 0; // stop TX/RX timer
+        setRXEN(1);
+        setTXEN(0);
         retv = sx128x_rx(radio, SX128X_RX_TIMEOUT_CONTINUOUS, SX128X_TIME_BASE_1MS);
       }
       else if (pars->mode == AFSM_RX || pars->mode == AFSM_RP)
@@ -141,6 +149,8 @@ void AFsm::txrx_fsm(unsigned long t)
         uint8_t size = *fixed ? *data_size : 0;
         _run = 0; // continous receive mode => stop periodic timer
         txrx = 0; // stop TX/RX timer
+        setRXEN(1);
+        setTXEN(0);
         retv = sx128x_recv(radio, size, *fixed,
                            SX128X_RX_TIMEOUT_CONTINUOUS, SX128X_TIME_BASE_1MS);
       }
@@ -176,11 +186,120 @@ void AFsm::txrx_fsm(unsigned long t)
     retv = wakeup();
   }
 
-  if (Opt.verbose && retv != SX128X_ERR_NONE)
-  {
-    print_ival("\r\nerror in AFsm::txrx_fsm(): err=", retv);
+  if (retv != SX128X_ERR_NONE) {
+    mrl_clear(&Mrl);
+    print_ival("error in AFsm::txrx_fsm(): err=", retv);
     mrl_refresh(&Mrl);
   }
+}
+//-----------------------------------------------------------------------------
+// TX done by TxDone interrupt
+unsigned long AFsm::tx_done(unsigned long irq_t)
+{
+  int8_t retv = SX128X_ERR_NONE;
+  unsigned long dt = (t_tx_done = irq_t) - t_tx_start;
+ 
+  led->off();
+  power = 0;
+
+  if (!_run) return dt;
+
+  if (pars->mode == AFSM_TX)
+  { // TX mode => go to state 1 and sleep
+    txrx = 0;
+    retv = sleep();
+  }
+  else if (pars->mode == AFSM_RQ)
+  { // requester mode => go to state 1 and RX after TX
+    txrx = 0;
+    setRXEN(1);
+    setTXEN(0);
+    retv = sx128x_recv(radio, *fixed ? *data_size : 0, *fixed,
+                       pars->t / 2, SX128X_TIME_BASE_1MS); // FIXME: timeout = period / 2 [ms]
+  }
+  else if (pars->mode == AFSM_RP)
+  { // responder mode => goto state 1 and RX after TX
+    _run = 0;
+    setRXEN(1);
+    setTXEN(0);
+    retv = sx128x_recv(radio, *fixed ? *data_size : 0, *fixed,
+                       SX128X_RX_TIMEOUT_CONTINUOUS, SX128X_TIME_BASE_1MS);
+  }
+  else if (pars->mode == AFSM_RS)
+  { // ranging slave => go to state 1 and RX
+    txrx = 0;
+    _run = 0;
+    setRXEN(1);
+    setTXEN(0);
+    retv = sx128x_rx(radio, SX128X_RX_TIMEOUT_CONTINUOUS, SX128X_TIME_BASE_1MS);
+  }
+  else if (pars->mode == AFSM_AR)
+  { // advanced ranging (?!) => go to state 1 and RX
+    txrx = 0;
+    _run = 0;
+    setRXEN(1);
+    setTXEN(0);
+    retv = sx128x_rx(radio, SX128X_RX_TIMEOUT_CONTINUOUS, SX128X_TIME_BASE_1MS);
+  }
+
+  if (retv != SX128X_ERR_NONE) print_ival("error in AFsm::tx_done(): err=", retv);
+  return dt;
+}
+//-----------------------------------------------------------------------------
+// RX done by RxDone interrupt
+unsigned long AFsm::rx_done(unsigned long irq_t)
+{
+  int8_t retv = SX128X_ERR_NONE;
+  unsigned long dt;
+  t_rx_done_p = t_rx_done;
+  t_rx_done = irq_t;
+  dt = t_rx_done - t_rx_done_p;
+
+  if (!_run) {
+    led->blink();
+    return dt;
+  }
+  
+  if (pars->mode == AFSM_RP) led->on();
+  else                       led->blink();
+
+  if (pars->mode == AFSM_RX)
+  { // RX mode => next RX
+    _run = txrx = 0;
+    setRXEN(1);
+    setTXEN(0);
+    retv = sx128x_recv(radio, *fixed ? *data_size : 0, *fixed,
+                       SX128X_RX_TIMEOUT_CONTINUOUS, SX128X_TIME_BASE_1MS);
+  }
+  else if (pars->mode == AFSM_RQ)
+  { // requester mode => go to state 1 and sleep
+    txrx = 0;
+    retv = sleep();
+  }
+  else if (pars->mode == AFSM_RP)
+  { // responder mode => go to TX
+    t_tx_start = t;
+    power = 1;
+    setRXEN(0);
+    setTXEN(1);
+    retv = sx128x_send(radio, data, *data_size, *fixed,
+                       SX128X_TX_TIMEOUT_SINGLE, SX128X_TIME_BASE_1MS);
+  }
+  else if (pars->mode == AFSM_RM)
+  { // ranging master mode => go to state 1 and sleep
+    txrx = 0;
+    retv = sleep();
+  }
+  else if (pars->mode == AFSM_RS || pars->mode == AFSM_AR)
+  { // ranging slave or advanced ranging mode => next RX
+    _run = txrx = 0;
+    setRXEN(1);
+    setTXEN(0);
+    retv = sx128x_rx(radio, SX128X_RX_TIMEOUT_CONTINUOUS, SX128X_TIME_BASE_1MS);
+  }
+
+  if (retv != SX128X_ERR_NONE) print_ival("error in AFsm::rx_done(): err=", retv);
+  return dt;
 }
 //-----------------------------------------------------------------------------
 

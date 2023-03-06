@@ -16,6 +16,7 @@ void sx128x_irq()
   uint8_t recv = 0;
   uint8_t ranging = 0;
   uint8_t buf[255];
+  uint8_t verbose = Opt.verbose || !Fsm.run();
 
   if (!sx128x_hw_irq_flag) return;
   sx128x_hw_irq_flag = 0;
@@ -24,15 +25,15 @@ void sx128x_irq()
 
   // get IRQ flags
   retv = sx128x_get_irq(&Radio, &irq);
-  if (retv != SX128X_ERR_NONE) { return; mrl_refresh(&Mrl); } // error
+  if (retv != SX128X_ERR_NONE) { mrl_refresh(&Mrl); return; } // error
 
   if (irq)
   { // clear IRQ flags
     retv = sx128x_clear_irq(&Radio, irq);
-    if (retv != SX128X_ERR_NONE) { return; mrl_refresh(&Mrl); } // error
+    if (retv != SX128X_ERR_NONE) { mrl_refresh(&Mrl); return; } // error
   }
 
-  if (Opt.verbose)
+  if (Opt.verbose >= 2)
   {
     print_str("DIO1 interrupt: cnt=");
     print_uint(sx128x_hw_irq_cnt);
@@ -63,91 +64,82 @@ void sx128x_irq()
       if (irq & SX128X_IRQ_PREAMBLE_DETECTED    ) print_str(" PreambleDetected");
     }
     print_str(" ]\r\n");
-  } // if (verbose)
-
-  // switch FSM to next state
-  // FIXME
-  Fsm.txrx_done();
+  } // if (Opt.verbose > 2)
 
   if (irq & SX128X_IRQ_TX_DONE)
   { // TX done
-    uint32_t dt;
-    T_tx_done = sx128x_hw_irq_time;
-    dt = T_tx_done - T_tx_start;
-    if (Opt.verbose) print_uval("TxDone: dt=", dt);
-    Led.off();
+    unsigned long dt = Fsm.tx_done(sx128x_hw_irq_time);
+    if (verbose) print_uval("TxDone: dt=", dt);
   }
 
   if (irq & SX128X_IRQ_RX_DONE)
   { // RX done
-    uint32_t dt;
-    T_rx_done_p = T_rx_done;
-    T_rx_done = sx128x_hw_irq_time;
-    dt = T_rx_done - T_rx_done_p;
-    if (Opt.verbose) print_uval("RxDone: dT=", dt);
+    unsigned long dt = Fsm.rx_done(sx128x_hw_irq_time);
+    if (verbose) print_uval("RxDone: dT=", dt);
     recv = 1;
-    Led.blink();
   }
 
   if (irq & SX128X_IRQ_RX_TX_TIMEOUT)
-  {
-    //if (Opt.verbose) print_str("RxTxTimeout!\r\n");
-    Led.off();
+  { // RX/TX timeout
+    Fsm.rxtx_timeout();
+    if (verbose) print_str("RxTxTimeout!\r\n");
   }
 
   if ((irq & SX128X_IRQ_HEADER_ERROR) || (irq & SX128X_IRQ_CRC_ERROR))
   { // see Errata 16.2 LoRa Modem: Additional Header Checks Required (page 150)
-    //if (Opt.verbose) print_str("HeaderError!\r\n");
+    if (verbose) print_str("HeaderError!\r\n");
     sx128x_rx(&Radio, SX128X_RX_TIMEOUT_CONTINUOUS, SX128X_TIME_BASE_15_625US);
   }
 
   if (irq & SX128X_IRQ_MASTER_RESULT_VALID)
   {
-    //if (Opt.verbose) print_str("MasterResultValid:\r\n");
+    Fsm.rxtx_timeout(); //!!!
+    if (verbose) print_str("MasterResultValid:\r\n");
     ranging = 1;
-    Led.off();
   }
 
   if (irq & SX128X_IRQ_MASTER_TIMEOUT)
   {
-    //if (Opt.verbose) print_str("MasterTimeout!\r\n");
+    Fsm.rxtx_timeout();
+    if (verbose) print_str("MasterTimeout!\r\n");
     Led.off();
   }
 
   if (irq & SX128X_IRQ_SLAVE_REQUEST_VALID)
   {
-    //if (Opt.verbose) print_str("SlaveRequestValid:\r\n");
+    if (verbose) print_str("SlaveRequestValid:\r\n");
     Led.on();
-    //Led.blink();
   }
 
   if (irq & SX128X_IRQ_SLAVE_RESPONSE_DONE)
   {
-    //if (Opt.verbose) print_str("SlaveResponseDone\r\n");
-    Led.off();
+    Fsm.rxtx_timeout(); //!!!
+    if (verbose) print_str("SlaveResponseDone\r\n");
   }
 
   if (irq & SX128X_IRQ_SLAVE_REQUEST_DISCARD)
   {
-    //if (Opt.verbose) print_str("SlaveRequestDiscard!\r\n");
+    if (verbose) print_str("SlaveRequestDiscard!\r\n");
+    sx128x_rx(&Radio, SX128X_RX_TIMEOUT_CONTINUOUS, SX128X_TIME_BASE_15_625US);
+    Led.off();
   }
 
   if (irq & SX128X_IRQ_CAD_DONE)
   {
-    //if (Opt.verbose) print_str("CadDone\r\n");
+    if (verbose) print_str("CadDone\r\n");
     //...
   }
 
   if (irq & SX128X_IRQ_CAD_DETECTED)
   {
-    //if (Opt.verbose) print_str("CadDetected\r\n");
+    if (verbose) print_str("CadDetected\r\n");
     //...
   }
 
   if (sx128x_get_advanced_ranging(&Radio) &&
       irq & SX128X_IRQ_ADVANCED_RANGING_DONE)
   {
-    //if (Opt.verbose) print_str("AdvancedRangingDone:\r\n");
+    if (verbose) print_str("AdvancedRangingDone:\r\n");
     ranging = 1;
     Led.blink();
   }
@@ -264,5 +256,5 @@ void sx128x_irq()
 }
 //-----------------------------------------------------------------------------
 
-/*** end of "sx126x_irq.cpp" file ***/
+/*** end of "sx128x_irq.cpp" file ***/
 

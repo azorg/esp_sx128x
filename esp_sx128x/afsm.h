@@ -29,16 +29,18 @@ typedef enum {
 } afsm_mode_t; // 0...AFSM_MODES-1
 //-----------------------------------------------------------------------------
 #define AFSM_MODE_STRING { \
-  "periodic continuous wave (CW) beeper",     \
-  "periodic on-off keying (OOK) transmitter", \
-  "periodic transmitter (TX)",                \
-  "continuous receiver (RX)",                 \
-  "periodic requester (RQ)",                  \
-  "continuous responder (RP)",                \
-  "periodic ranging master (RM)",             \
-  "continuous ranging slave (RS)",            \
-  "continuous advanced ranging (AR)",         \
-  "sweep generator (SG)" };
+  "CW - periodic continuous wave beeper",     \
+  "OOK - periodic on-off keying transmitter", \
+  "TX - periodic transmitter",                \
+  "RX - continuous receiver",                 \
+  "RQ - periodic requester",                  \
+  "RP - continuous responder",                \
+  "RM - periodic ranging master",             \
+  "RS - continuous ranging slave",            \
+  "AR - continuous advanced ranging",         \
+  "SG - Sweep Generator" };
+//-----------------------------------------------------------------------------
+#define AFSM_MODE_HELP "0:CW 1:OOK 2:TX 3:RX 4:RQ 5:RP 6:RM 7:RS 8:AR 9:SW"
 //-----------------------------------------------------------------------------
 extern const char * const afsm_mode_string[AFSM_MODES];
 //-----------------------------------------------------------------------------
@@ -95,6 +97,14 @@ private:
 
   uint8_t sleep_ready; // ready to sleep flag {0|1}
 
+  unsigned long t_tx_start;  // TX start time
+  unsigned long t_tx_done;   // TX done time
+  unsigned long t_rx_done;   // RX done time
+  unsigned long t_rx_done_p; // RX done time (previous)
+
+  void (*_setRXEN)(uint8_t rxen); // set RXEN or NULL
+  void (*_setTXEN)(uint8_t txen); // set TXEN or NULL
+
   // TX wave ON/OFF
   int8_t wave(uint8_t on) {
     int8_t retv = on ? sx128x_tx_wave(radio) :
@@ -124,15 +134,27 @@ private:
   void txrx_fsm(unsigned long t);  // TX/RX FSM after txrx_start
 
 public:
+  // set RXEN
+  void setRXEN(uint8_t rxen) {
+    if (_setRXEN != (void (*)(uint8_t)) NULL) _setRXEN(rxen);
+  }
+
+  // set TXEN
+  void setTXEN(uint8_t txen) {
+    if (_setTXEN != (void (*)(uint8_t)) NULL) _setTXEN(txen);
+  }
+  
   // call from setup(): init FSM
-  void begin(ABlink      *led,       // on board LED
-             afsm_pars_t *pars,      // FSM options
-             uint8_t     *data,      // RX/TX packet data
-             uint8_t     *data_size, // RX/TX packet data size (bytes)
-             uint8_t     *fixed,     // 1-fixed packet size, 0-variable packet size 
-             const char  *code,      // OOK code (like "100101")
-             uint8_t     *code_size, // OOK code size (chips) = strlen(code)
-             sx128x_t    *radio)     // SX128x object
+  void begin(ABlink      *led,          // on board LED
+             afsm_pars_t *pars,         // FSM options
+             uint8_t     *data,         // RX/TX packet data
+             uint8_t     *data_size,    // RX/TX packet data size (bytes)
+             uint8_t     *fixed,        // 1-fixed packet size, 0-variable packet size 
+             const char  *code,         // OOK code (like "100101")
+             uint8_t     *code_size,    // OOK code size (chips) = strlen(code)
+             sx128x_t    *radio,        // SX128x object
+             void (*rxen)(uint8_t),     // set RXEN or NULL
+             void (*txen)(uint8_t))     // set TXEN or NULL
   {
     // save pointers to external (global) objects
     this->led       = led;
@@ -143,6 +165,9 @@ public:
     this->code      = code;
     this->code_size = code_size;
     this->radio     = radio;
+
+    _setRXEN = rxen;
+    _setTXEN = txen;
 
     // period timer
     _start = 0; // start timer command
@@ -176,9 +201,24 @@ public:
   // get run state
   uint8_t run() const { return _run; }
 
-  // TX/RX done by TxDone/RxDone interrupt
-  void txrx_done() { txrx = 0; }
+  // set TX start time and LED on
+  void tx_start(unsigned long t) {
+    led->on();
+    t_tx_start = t;
+  }
+
+  // TX done by TxDone interrupt
+  unsigned long tx_done(unsigned long irq_t);
   
+  // RX done by RxDone interrupt
+  unsigned long rx_done(unsigned long irq_t);
+  
+  // RX/TX timeout interrupt
+  void rxtx_timeout() {
+    led->off();
+    txrx = power = 0;
+  }
+
   // periodic call from main loop (t = millis())
   void yield(unsigned long t) {
     start_fsm(t); // form txrx_start timer

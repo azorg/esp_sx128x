@@ -49,11 +49,9 @@ void setup() {
   print_str("MHz\r\n");  
   sx128x_hw_begin();
   
-  // set RXEN and TXEN from FLASH
-  setRXEN(Opt.rxen);
-  setTXEN(Opt.txen);
-  print_ival("set RXEN=", RXEN);
-  print_ival("set TXEN=", TXEN);
+  // reset RXEN/TXEN by default
+  setRXEN(0);
+  setTXEN(0);
 
   // hardware reset SX128x
   delay(100); // FIXME: magic
@@ -64,7 +62,7 @@ void setup() {
   int8_t retv = sx128x_init(&Radio,
                             sx128x_hw_busy_wait, sx128x_hw_exchange,
                             &Opt.radio, NULL);
-  print_ival("sx128x_init() return ", (int) retv);
+  print_ival("sx128x_init() return ", retv);
   
   // setup blink LED
   Led.begin(LED_PIN, LED_INVERT, LED_BLINK_ON, LED_BLINK_OFF);
@@ -85,10 +83,24 @@ void setup() {
             &Opt.radio.fixed, // 1-fixed packet size, 0-variable packet size 
             Opt.code,         // OOK code (like "100101")
             &Opt.code_size,   // OOK code size (chips) = strlen(code)
-            &Radio);          // SX128x object
+            &Radio,           // SX128x object
+            setRXEN,          // set RXEN or NULL
+            setTXEN);         // set TXEN or NULL
   
   Seconds = 0;
   print_uval("autostart=", Autostart = Opt.autostart);
+  print_uval("verbose=", Opt.verbose);
+
+  if (Autostart) {
+    retv = sx128x_sleep(&Radio, SX128X_SLEEP_OFF_RETENTION);
+    print_ival("sx128x_sleep() return ", retv);
+  } else {
+    // set RXEN and TXEN from FLASH
+    setRXEN(Opt.rxen);
+    setTXEN(Opt.txen);
+    print_ival("set RXEN=", RXEN);
+    print_ival("set TXEN=", TXEN);
+  }
   
   // init CLI (MicroRL)
   cli_init();

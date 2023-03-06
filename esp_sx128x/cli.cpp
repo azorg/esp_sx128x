@@ -519,15 +519,15 @@ void cli_hw_reset(int argc, char* const argv[], const cli_cmd_t *cmd)
 void cli_hw_rxen(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // hw rxen [0|1]
   if (argc > 0) Opt.rxen = RXEN = !!mrl_str2int(argv[0], RXEN, 0);
-  sx128x_hw_rxen(RXEN, NULL);
-  print_ival("RXEN=", RXEN);
+  setRXEN(RXEN);
+  print_uval("RXEN=", RXEN);
 }
 //-----------------------------------------------------------------------------
 void cli_hw_txen(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // hw txen [0|1]
   if (argc > 0) Opt.txen = TXEN = !!mrl_str2int(argv[0], TXEN, 0);
-  sx128x_hw_txen(TXEN, NULL);
-  print_ival("TXEN=", TXEN);
+  setTXEN(TXEN);
+  print_uval("TXEN=", TXEN);
 }
 //-----------------------------------------------------------------------------
 void cli_hw_busy(int argc, char* const argv[], const cli_cmd_t *cmd)
@@ -625,6 +625,7 @@ void cli_radio_sleep(int argc, char* const argv[], const cli_cmd_t *cmd)
   if (argc > 0) conf = (uint8_t) mrl_str2int(argv[0], conf, 0);
 
   Led.off();
+  
   setRXEN(0);
   setTXEN(0);
 
@@ -668,12 +669,13 @@ void cli_radio_standby(int argc, char* const argv[], const cli_cmd_t *cmd)
   if (argc > 0) conf = (uint8_t) mrl_str2int(argv[0], conf, 0);
 
   Led.off();
-  setRXEN(Opt.rxen);
-  setTXEN(Opt.txen);
 
   retv = sx128x_standby(&Radio, conf);
   if (retv != SX128X_ERR_NONE) return;
   
+  setRXEN(Opt.rxen);
+  setTXEN(Opt.txen);
+
   print_str("radio standby: ");
   sx128x_standby_mode_print(conf);
 }
@@ -685,11 +687,12 @@ void cli_radio_wakeup(int argc, char* const argv[], const cli_cmd_t *cmd)
   if (argc > 0) conf = (uint8_t) mrl_str2int(argv[0], conf, 0);
 
   Led.off();
-  setRXEN(Opt.rxen);
-  setTXEN(Opt.txen);
-
+  
   retv = sx128x_wakeup(&Radio, conf);
   if (retv != SX128X_ERR_NONE) return;
+
+  setRXEN(Opt.rxen);
+  setTXEN(Opt.txen);
 
   print_str("radio wakeup: ");
   sx128x_standby_mode_print(conf);
@@ -757,13 +760,11 @@ void cli_radio_tx(int argc, char* const argv[], const cli_cmd_t *cmd)
   if (argc > 0) timeout = (uint16_t) mrl_str2int(argv[0], timeout, 10);
   if (argc > 1) base    = (uint8_t)  mrl_str2int(argv[1], base,    10);
   if (base > 3) base = 3;
-
+  
   retv = sx128x_tx(&Radio, timeout, base);
   if (retv != SX128X_ERR_NONE) return;
 
-  T_tx_start = TIME_FUNC();
-
-  Led.on();
+  Fsm.tx_start(TIME_FUNC());
 
   print_str("TX: timeout=0x");
   print_hex(timeout, 4);
@@ -1042,13 +1043,11 @@ void cli_radio_wave(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // radio wave
   int8_t retv = sx128x_standby(&Radio, SX128X_STANDBY_XOSC);
   if (retv != SX128X_ERR_NONE) return;
-
+  
   retv = sx128x_tx_wave(&Radio);
   if (retv != SX128X_ERR_NONE) return;
   
   Led.on();
-  setRXEN(0);
-  setTXEN(1);
   
   print_str("continuous wave\r\n");
 }
@@ -1062,8 +1061,6 @@ void cli_radio_preamble(int argc, char* const argv[], const cli_cmd_t *cmd)
   if (retv != SX128X_ERR_NONE) return;
 
   Led.on();
-  setRXEN(0);
-  setTXEN(1);
 
   print_str("continuous preamble\r\n");
 }
@@ -1103,11 +1100,13 @@ void cli_radio_restore(int argc, char* const argv[], const cli_cmd_t *cmd)
   int8_t retv;
 
   Led.off();
+  
+  retv = sx128x_restore(&Radio);
+  if (retv != SX128X_ERR_NONE) return;
+  
   setRXEN(Opt.rxen);
   setTXEN(Opt.txen);
 
-  retv = sx128x_restore(&Radio);
-  if (retv != SX128X_ERR_NONE) return;
   print_str("restore\r\n");
 }
 //-----------------------------------------------------------------------------
@@ -1734,8 +1733,10 @@ void cli_ble_auto_tx(int argc, char* const argv[], const cli_cmd_t *cmd)
   int8_t retv;
   uint16_t time = 0; // auto TX off by default
   if (argc > 0) time = (uint16_t) mrl_str2int(argv[0], time, 0);
+  
   retv = sx128x_auto_tx_ble(&Radio, time);
   if (retv != SX128X_ERR_NONE) return;
+  
   print_uval("set auto tx: time=", time);
 }
 //-----------------------------------------------------------------------------
@@ -1979,16 +1980,13 @@ void cli_send(int argc, char* const argv[], const cli_cmd_t *cmd)
   uint32_t timeout = SX128X_TX_TIMEOUT_SINGLE;
   if (argc > 0) timeout = (uint32_t) mrl_str2int(argv[0], timeout, 0);
 
-
   retv = sx128x_send(&Radio,
                      (const uint8_t*) Opt.data, Opt.data_size,
                      Opt.radio.fixed, timeout, SX128X_TIME_BASE_1MS);
   if (retv != SX128X_ERR_NONE) return;
 
-  T_tx_start = TIME_FUNC();
+  Fsm.tx_start(TIME_FUNC());
 
-  Led.on();
-  
   print_str("send: size="); print_uint(Opt.data_size);
   print_str(" fixed=");     print_uint(Opt.radio.fixed);
   print_str(" timeout=");   print_uint(timeout);
@@ -2009,7 +2007,7 @@ void cli_recv(int argc, char* const argv[], const cli_cmd_t *cmd)
   retv = sx128x_recv(&Radio, (uint8_t) size, Opt.radio.fixed,
                      timeout, SX128X_TIME_BASE_1MS);
   if (retv != SX128X_ERR_NONE) return;
-
+  
   print_str("recv: ready to receive size="); print_uint(size);
   print_str(" timeout=");                    print_uint(timeout);
   print_str("ms fixed=");                    print_uint(Opt.radio.fixed);
@@ -2019,8 +2017,10 @@ void cli_recv(int argc, char* const argv[], const cli_cmd_t *cmd)
 //=============================================================================
 void cli_mode(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // mode [0..9]
-  if (argc > 0)
+  if (argc > 0) {
+    print_str("set ");
     Opt.fsm.mode = (uint8_t) LIMIT(mrl_str2int(argv[0], 0, 10), 0, AFSM_MODES-1);
+  }
 
   print_str("mode=");
   print_uint(Opt.fsm.mode);
@@ -2029,7 +2029,7 @@ void cli_mode(int argc, char* const argv[], const cli_cmd_t *cmd)
   {
     print_str(" (");
     print_str(afsm_mode_string[Opt.fsm.mode]);
-    print_chr(')');
+    print_str(")\r\nmodes: " AFSM_MODE_HELP);
   }
   print_eol();
 }

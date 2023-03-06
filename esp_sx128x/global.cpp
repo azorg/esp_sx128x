@@ -19,11 +19,6 @@ uint8_t RXEN;            // RXEN state {0|1}
 uint8_t TXEN;            // TXEN state {0|1}
 AFsm Fsm;                // FSM
 uint8_t Autostart = 0;   // auto start flag
-
-unsigned long T_tx_start  = 0; // TX start time
-unsigned long T_tx_done   = 0; // TX done time
-unsigned long T_rx_done   = 0; // RX done time
-unsigned long T_rx_done_p = 0; // RX done time (previous)
 //-----------------------------------------------------------------------------
 // print SX128x RSSI [dBm]
 void print_rssi(uint8_t rssi)
