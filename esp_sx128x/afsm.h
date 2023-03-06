@@ -188,7 +188,35 @@ public:
   }
 
   // FSM start
-  void start() { if (!_run) _start = 1; }
+  void start() {
+    if (!_run) {
+      _start = 1;
+    
+#ifdef SX128X_USE_RANGING
+      // mega fix - set ranging mode and role
+      if (pars->mode == AFSM_RM || pars->mode == AFSM_RS ||
+          pars->mode == AFSM_AR)
+      {
+        if (sx128x_get_mode(radio) != SX128X_PACKET_TYPE_RANGING)
+          // change radio mode to Ranging
+          sx128x_mode(radio, SX128X_PACKET_TYPE_RANGING);
+
+        // set role
+        sx128x_ranging_role(radio, pars->mode == AFSM_RM ? 0x01 : // master
+                                                           0x00); // slave
+      }
+      else if (pars->mode == AFSM_CW || pars->mode == AFSM_OOK ||
+               pars->mode == AFSM_RX || pars->mode == AFSM_TX  ||
+               pars->mode == AFSM_RQ || pars->mode == AFSM_RP)
+      {
+        if (sx128x_get_mode(radio) == SX128X_PACKET_TYPE_RANGING)
+          // change radio mode to LoRa by default
+          sx128x_mode(radio, SX128X_PACKET_TYPE_LORA);
+      }
+
+#endif
+    }
+  }
   
   // FSM stop
   void stop() {

@@ -35,6 +35,7 @@
 //-----------------------------------------------------------------------------
 // packet type strings [0-4]:
 #define SX128X_PACKET_TYPE_STRING { "GFSK", "LoRa", "Ranging", "FLRC", "BLE", "Reserved" }
+#define SX128X_PACKET_TYPE_HELP "0:GFSK 1:LoRa 2:Ranging 3:FLRC 4:BLE"
 //-----------------------------------------------------------------------------
 // time base strings [0-3]:
 #define SX128X_TIME_BASE_STRING { "15.625us", "62.5us", "1ms", "4ms", "Unknown" }

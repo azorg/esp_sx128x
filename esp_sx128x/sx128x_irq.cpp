@@ -102,7 +102,6 @@ void sx128x_irq()
   {
     Fsm.rxtx_timeout();
     if (verbose) print_str("MasterTimeout!\r\n");
-    Led.off();
   }
 
   if (irq & SX128X_IRQ_SLAVE_REQUEST_VALID)

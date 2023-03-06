@@ -727,7 +727,7 @@ void cli_radio_mode(int argc, char* const argv[], const cli_cmd_t *cmd)
   if (mode > 5) mode = 5;
   print_str(" (");
   print_str(modes[mode]);
-  print_chr(')');
+  print_str(")\r\nmodes: " SX128X_PACKET_TYPE_HELP);
 #endif
   print_eol();
 }
@@ -2067,6 +2067,7 @@ void cli_start(int argc, char* const argv[], const cli_cmd_t *cmd)
 //-----------------------------------------------------------------------------
 void cli_stop(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // stop
+  Autostart = 0;
   Fsm.stop();
 }
 //-----------------------------------------------------------------------------
@@ -2088,7 +2089,7 @@ static void cli_sigint_cb()
 {
   print_str("\r\n^C\r\n");
   print_str("stop\r\n");
-  Fsm.stop();
+  cli_stop(0, NULL, NULL);
   mrl_prompt(&Mrl);
 }
 #endif // MRL_USE_CTRL_C
@@ -2139,7 +2140,7 @@ void cli_loop()
   {
     print_str("\r\n^C\r\n");
     print_str("stop\r\n");
-    Fsm.stop();
+    cli_stop(0, NULL, NULL);
     mrl_prompt(&Mrl);
   }
 #endif // !MRL_USE_CTRL_C
