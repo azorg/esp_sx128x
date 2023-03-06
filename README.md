@@ -6,7 +6,7 @@ ESP32 + SX128x test application
 2. SX128x module (like E28-2G4M27S or E28-2G4M12S)
 
 ## How to install
-Look INSTALL.md file
+Look `INSTALL.md` file
 
 ## Files:
  - `esp_sx128x` - all Arduino sources directory
@@ -40,4 +40,11 @@ Note:
  2. ESP32 connected to PC by USB type-C or MicroUSB cable
  3. `TX_EN` and `RX_EN` only for 27dBm version E28 nodule (E28-2G4M27S)
 
+## Run `minicom`
+```bash
+minicom -c on -b 115200 -D /dev/ttyUSB0
+```
+
+## Available CLI commands
+look `COMMANDS.md`
 

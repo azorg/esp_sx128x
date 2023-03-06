@@ -33,7 +33,7 @@ void sx128x_irq()
     if (retv != SX128X_ERR_NONE) { mrl_refresh(&Mrl); return; } // error
   }
 
-  if (Opt.verbose >= 2)
+  if (verbose)
   {
     print_str("DIO1 interrupt: cnt=");
     print_uint(sx128x_hw_irq_cnt);
@@ -64,17 +64,18 @@ void sx128x_irq()
       if (irq & SX128X_IRQ_PREAMBLE_DETECTED    ) print_str(" PreambleDetected");
     }
     print_str(" ]\r\n");
-  } // if (Opt.verbose > 2)
+  } // if (verbose)
 
   if (irq & SX128X_IRQ_TX_DONE)
   { // TX done
-    unsigned long dt = Fsm.tx_done(sx128x_hw_irq_time);
+    unsigned long dt = Fsm.tx_done_dt(sx128x_hw_irq_time);
     if (verbose) print_uval("TxDone: dt=", dt);
+    Fsm.tx_done();
   }
 
   if (irq & SX128X_IRQ_RX_DONE)
   { // RX done
-    unsigned long dt = Fsm.rx_done(sx128x_hw_irq_time);
+    unsigned long dt = Fsm.rx_done_dt(sx128x_hw_irq_time);
     if (verbose) print_uval("RxDone: dT=", dt);
     recv = 1;
   }
@@ -82,69 +83,59 @@ void sx128x_irq()
   if (irq & SX128X_IRQ_RX_TX_TIMEOUT)
   { // RX/TX timeout
     Fsm.rxtx_timeout();
-    if (verbose) print_str("RxTxTimeout!\r\n");
   }
 
   if ((irq & SX128X_IRQ_HEADER_ERROR) || (irq & SX128X_IRQ_CRC_ERROR))
   { // see Errata 16.2 LoRa Modem: Additional Header Checks Required (page 150)
-    if (verbose) print_str("HeaderError!\r\n");
     sx128x_rx(&Radio, SX128X_RX_TIMEOUT_CONTINUOUS, SX128X_TIME_BASE_15_625US);
   }
 
   if (irq & SX128X_IRQ_MASTER_RESULT_VALID)
-  {
-    Fsm.rxtx_timeout(); //!!!
-    if (verbose) print_str("MasterResultValid:\r\n");
+  { // master result valid
     ranging = 1;
   }
 
   if (irq & SX128X_IRQ_MASTER_TIMEOUT)
-  {
+  { // master timeout
     Fsm.rxtx_timeout();
-    if (verbose) print_str("MasterTimeout!\r\n");
   }
 
   if (irq & SX128X_IRQ_SLAVE_REQUEST_VALID)
-  {
-    if (verbose) print_str("SlaveRequestValid:\r\n");
+  { // slave request valid
     Led.on();
   }
 
   if (irq & SX128X_IRQ_SLAVE_RESPONSE_DONE)
-  {
-    Fsm.rxtx_timeout(); //!!!
-    if (verbose) print_str("SlaveResponseDone\r\n");
+  { // slave request done
+    Led.off();
   }
 
   if (irq & SX128X_IRQ_SLAVE_REQUEST_DISCARD)
-  {
-    if (verbose) print_str("SlaveRequestDiscard!\r\n");
+  { // slave request discard
     sx128x_rx(&Radio, SX128X_RX_TIMEOUT_CONTINUOUS, SX128X_TIME_BASE_15_625US);
     Led.off();
   }
 
   if (irq & SX128X_IRQ_CAD_DONE)
-  {
-    if (verbose) print_str("CadDone\r\n");
-    //...
+  { // CAD done
+    //if (verbose) print_str("CadDone\r\n");
   }
 
   if (irq & SX128X_IRQ_CAD_DETECTED)
-  {
-    if (verbose) print_str("CadDetected\r\n");
-    //...
+  { // CAD detected
+    //if (verbose) print_str("CadDetected\r\n");
   }
 
   if (sx128x_get_advanced_ranging(&Radio) &&
       irq & SX128X_IRQ_ADVANCED_RANGING_DONE)
-  {
-    if (verbose) print_str("AdvancedRangingDone:\r\n");
+  { // advanced ranging done
+    //if (verbose) print_str("AdvancedRangingDone:\r\n");
     ranging = 1;
     Led.blink();
   }
 
   if (recv)
-  { // receive packet
+  { // receive packet (RxDone)
     sx128x_rx_t rx;
     uint8_t payload_size;
 
@@ -222,6 +213,8 @@ void sx128x_irq()
       }
       print_eol();
     }
+
+    Fsm.rx_done();
   }
 
   if (ranging)
@@ -249,6 +242,8 @@ void sx128x_irq()
       print_rssi(rssi);
       print_str("dBm\r\n");
     }
+    
+    Fsm.ranging_done();
   }
 
   mrl_refresh(&Mrl);

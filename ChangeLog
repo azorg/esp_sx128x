@@ -1,5 +1,6 @@
 2023.03.06:
  * work and debug full FSM
+ * debug all FSM modes
 
 2023.03.05:
  * add FSM (afsm.cpp/afsm.h)

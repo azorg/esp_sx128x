@@ -19,14 +19,16 @@ const afsm_pars_t afsm_pars_default = {
   50,     // dc: OOK code chip time [ms]
   2,      // wut: radio wakeup time [ms]
 
-  AFSM_SWEEP_MIN * 1000, // sweep_min: minimal frequency [Hz]
-  AFSM_SWEEP_MAX * 1000, // sweep_max: maximal frequency [Hz]
-  AFSM_SWEEP_F           // sweep_f: sweep factor [kHz/sec = Hz/ms]
+  AFSM_SWEEP_MIN, // sweep_min: minimal frequency [kHz]
+  AFSM_SWEEP_MAX, // sweep_max: maximal frequency [kHz]
+  AFSM_SWEEP_F    // sweep_f: sweep factor [kHz/sec = kHz/ms]
 };
 //-----------------------------------------------------------------------------
 // FSM period timer (form txrx_start periodic rise)
 void AFsm::start_fsm(unsigned long t)
 {
+  uint8_t restore = 0;
+
   if (_run)
   {
     if (_stop && !txrx && !wus)
@@ -34,6 +36,7 @@ void AFsm::start_fsm(unsigned long t)
       _stop      = 0;
       _run       = 0;
       txrx_start = 0;
+      restore    = 1;
     }
     else if (((long)(t - _t)) >= pars->t * TIME_FACTOR)
     {
@@ -48,6 +51,13 @@ void AFsm::start_fsm(unsigned long t)
     _t         = t;
     txrx_start = 1;
   }
+  else if (_stop)
+  {
+    _stop = 0;
+    restore = 1;
+  }
+      
+  if (restore) sx128x_restore(radio);
 }
 //-----------------------------------------------------------------------------
 // FSM TX/RX timer has 3 state:
@@ -80,15 +90,23 @@ void AFsm::txrx_fsm(unsigned long t)
       }
       else if (pars->mode == AFSM_SG)
       { // sweep generator
-        freq += ((long) (t - this->t) / TIME_FACTOR) * pars->sweep_f;
-        if (freq < pars->sweep_min ||
-            freq > pars->sweep_max)
+        freq += dt * pars->sweep_f; // ms * Hz/ms = Hz
+        if (freq < (pars->sweep_min * 1000) ||
+            freq > (pars->sweep_max * 1000)) // FIXME
         { // sweep finish => go to state 1
           sx128x_set_frequency(radio, sweep_save); // restore frequency
           retv = sleep();
         }
         else
         { // set next frequency
+#if 0     // FIXME: debug print
+          if (Opt.verbose)
+          {
+            mrl_clear(&Mrl);
+            print_uval("freq=", freq);
+            mrl_refresh(&Mrl);
+          }
+#endif
           retv = sx128x_set_frequency(radio, freq);
         }
       }
@@ -162,11 +180,19 @@ void AFsm::txrx_fsm(unsigned long t)
           freq = pars->sweep_max;
         else // pars->sweep == 0 (?!)
           freq = (pars->sweep_min + pars->sweep_max) / 2;
-          
-        dt = pars->dc; // FIXME: check it
-        //dt = 1; // 1 ms
+
+        freq *= 1000; // kHz -> Hz
+        dt = 1; // 1 ms FIXME!
         
         sweep_save = sx128x_get_frequency(radio); // save frequency
+#if 0   // FIXME: debug print
+        if (Opt.verbose)
+        {
+          mrl_clear(&Mrl);
+          print_uval("freq=", freq);
+          mrl_refresh(&Mrl);
+        }
+#endif
         sx128x_set_frequency(radio, freq);
         retv = wave(1);
       }
@@ -194,22 +220,18 @@ void AFsm::txrx_fsm(unsigned long t)
 }
 //-----------------------------------------------------------------------------
 // TX done by TxDone interrupt
-unsigned long AFsm::tx_done(unsigned long irq_t)
+void AFsm::tx_done()
 {
   int8_t retv = SX128X_ERR_NONE;
-  unsigned long dt = (t_tx_done = irq_t) - t_tx_start;
- 
+  
   led->off();
   power = 0;
 
-  if (!_run) return dt;
-
-  if (pars->mode == AFSM_TX)
+  if (pars->mode == AFSM_TX && _run)
   { // TX mode => go to state 1 and sleep
-    txrx = 0;
     retv = sleep();
   }
-  else if (pars->mode == AFSM_RQ)
+  else if (pars->mode == AFSM_RQ && _run)
   { // requester mode => go to state 1 and RX after TX
     txrx = 0;
     setRXEN(1);
@@ -225,8 +247,9 @@ unsigned long AFsm::tx_done(unsigned long irq_t)
     retv = sx128x_recv(radio, *fixed ? *data_size : 0, *fixed,
                        SX128X_RX_TIMEOUT_CONTINUOUS, SX128X_TIME_BASE_1MS);
   }
-  else if (pars->mode == AFSM_RS)
+  else if (pars->mode == AFSM_RS && _run)
   { // ranging slave => go to state 1 and RX
+    print_str("!!! Delete THIS CODE !!!\r\n"); // FIXME
     txrx = 0;
     _run = 0;
     setRXEN(1);
@@ -235,6 +258,7 @@ unsigned long AFsm::tx_done(unsigned long irq_t)
   }
   else if (pars->mode == AFSM_AR)
   { // advanced ranging (?!) => go to state 1 and RX
+    print_str("!!! Delete THIS CODE !!!\r\n"); // FIXME
     txrx = 0;
     _run = 0;
     setRXEN(1);
@@ -243,22 +267,12 @@ unsigned long AFsm::tx_done(unsigned long irq_t)
   }
 
   if (retv != SX128X_ERR_NONE) print_ival("error in AFsm::tx_done(): err=", retv);
-  return dt;
 }
 //-----------------------------------------------------------------------------
 // RX done by RxDone interrupt
-unsigned long AFsm::rx_done(unsigned long irq_t)
+void AFsm::rx_done()
 {
   int8_t retv = SX128X_ERR_NONE;
-  unsigned long dt;
-  t_rx_done_p = t_rx_done;
-  t_rx_done = irq_t;
-  dt = t_rx_done - t_rx_done_p;
-
-  if (!_run) {
-    led->blink();
-    return dt;
-  }
   
   if (pars->mode == AFSM_RP) led->on();
   else                       led->blink();
@@ -271,27 +285,29 @@ unsigned long AFsm::rx_done(unsigned long irq_t)
     retv = sx128x_recv(radio, *fixed ? *data_size : 0, *fixed,
                        SX128X_RX_TIMEOUT_CONTINUOUS, SX128X_TIME_BASE_1MS);
   }
-  else if (pars->mode == AFSM_RQ)
+  else if (pars->mode == AFSM_RQ && _run)
   { // requester mode => go to state 1 and sleep
     txrx = 0;
     retv = sleep();
   }
   else if (pars->mode == AFSM_RP)
   { // responder mode => go to TX
-    t_tx_start = t;
+    //t_tx_start = t_rx_done;
+    t_tx_start = TIME_FUNC(); // FIXME
     power = 1;
     setRXEN(0);
     setTXEN(1);
     retv = sx128x_send(radio, data, *data_size, *fixed,
                        SX128X_TX_TIMEOUT_SINGLE, SX128X_TIME_BASE_1MS);
   }
-  else if (pars->mode == AFSM_RM)
+  else if (pars->mode == AFSM_RM && _run)
   { // ranging master mode => go to state 1 and sleep
-    txrx = 0;
+    print_str("!!! Delete THIS CODE !!!\r\n"); // FIXME
     retv = sleep();
   }
   else if (pars->mode == AFSM_RS || pars->mode == AFSM_AR)
   { // ranging slave or advanced ranging mode => next RX
+    print_str("!!! Delete THIS CODE !!!\r\n"); // FIXME
     _run = txrx = 0;
     setRXEN(1);
     setTXEN(0);
@@ -299,7 +315,36 @@ unsigned long AFsm::rx_done(unsigned long irq_t)
   }
 
   if (retv != SX128X_ERR_NONE) print_ival("error in AFsm::rx_done(): err=", retv);
-  return dt;
+}
+//-----------------------------------------------------------------------------
+// ranging done interrupt
+void AFsm::ranging_done()
+{
+  int8_t retv = SX128X_ERR_NONE;
+  
+  if (pars->mode == AFSM_RM && _run)
+  { // ranging master done => 
+    retv = sleep();
+  }
+  else if (pars->mode == AFSM_RS)
+  { // ranging  => next RX
+    print_str("!!! Delete THIS CODE !!!\r\n"); // FIXME
+    _run = txrx = 0;
+    led->blink();
+    setRXEN(1);
+    setTXEN(0);
+    retv = sx128x_rx(radio, SX128X_RX_TIMEOUT_CONTINUOUS, SX128X_TIME_BASE_1MS);
+  }
+  else if (pars->mode == AFSM_AR)
+  { // advanced ranging mode => next RX
+    _run = txrx = 0;
+    led->blink();
+    setRXEN(1);
+    setTXEN(0);
+    retv = sx128x_rx(radio, SX128X_RX_TIMEOUT_CONTINUOUS, SX128X_TIME_BASE_1MS);
+  }
+  
+  if (retv != SX128X_ERR_NONE) print_ival("error in AFsm::ranging_done(): err=", retv);
 }
 //-----------------------------------------------------------------------------
 

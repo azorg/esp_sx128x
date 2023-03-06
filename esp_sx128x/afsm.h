@@ -55,9 +55,9 @@ typedef struct {
   uint32_t wut;   // radio wakeup time [ms]
 
   // sweep generator (SG)
-  uint32_t sweep_min; // minimal frequency [Hz]
-  uint32_t sweep_max; // maximal frequency [Hz]
-  int32_t  sweep_f;   // sweep factor [Hz/ms]
+  uint32_t sweep_min; // minimal frequency [kHz]
+  uint32_t sweep_max; // maximal frequency [kHz]
+  int32_t  sweep_f;   // sweep factor [kHz/s]
 } afsm_pars_t;
 //-----------------------------------------------------------------------------
 // FSM default options
@@ -200,30 +200,31 @@ public:
         if (sx128x_get_mode(radio) != SX128X_PACKET_TYPE_RANGING)
           // change radio mode to Ranging
           sx128x_mode(radio, SX128X_PACKET_TYPE_RANGING);
-
-        // set role
-        sx128x_ranging_role(radio, pars->mode == AFSM_RM ? 0x01 : // master
-                                                           0x00); // slave
+      
+        if (pars->mode == AFSM_AR) { // start advanced ranging
+          sx128x_set_advanced_ranging(radio, 1);
+        } else { // classic ranging => set role
+          sx128x_ranging_role(radio, pars->mode == AFSM_RM ? 0x01 : // master
+                                                             0x00); // slave
+        }
       }
       else if (pars->mode == AFSM_CW || pars->mode == AFSM_OOK ||
                pars->mode == AFSM_RX || pars->mode == AFSM_TX  ||
                pars->mode == AFSM_RQ || pars->mode == AFSM_RP)
       {
-        if (sx128x_get_mode(radio) == SX128X_PACKET_TYPE_RANGING)
-          // change radio mode to LoRa by default
-          sx128x_mode(radio, SX128X_PACKET_TYPE_LORA);
+        if (sx128x_get_mode(radio) == SX128X_PACKET_TYPE_RANGING) {
+          sx128x_set_advanced_ranging(radio, 0); // off advanced ranging
+          sx128x_mode(radio, SX128X_PACKET_TYPE_LORA); // LoRa by default
+        }
       }
-
 #endif
     }
   }
   
   // FSM stop
   void stop() {
-    if (_run) {
-      _stop = 1;
-      led->off();
-    }
+    _stop = 1;
+    led->off();
   }
 
   // get run state
@@ -236,10 +237,21 @@ public:
   }
 
   // TX done by TxDone interrupt
-  unsigned long tx_done(unsigned long irq_t);
+  unsigned long tx_done_dt(unsigned long irq_t) {
+    return (t_tx_done = irq_t) - t_tx_start;
+  }
+  void tx_done();
   
   // RX done by RxDone interrupt
-  unsigned long rx_done(unsigned long irq_t);
+  unsigned long rx_done_dt(unsigned long irq_t) {
+    t_rx_done_p = t_rx_done;
+    t_rx_done = irq_t;
+    return t_rx_done - t_rx_done_p;
+  }
+  void rx_done();
+
+  // ranging done interrupt
+  void ranging_done();
   
   // RX/TX timeout interrupt
   void rxtx_timeout() {

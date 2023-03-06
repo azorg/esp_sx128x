@@ -23,7 +23,7 @@
 // Token is word separate by white space, for example 3 token line:
 // "=> set mode test"
 #ifndef MRL_COMMAND_TOKEN_NUM 
-#  define MRL_COMMAND_TOKEN_NUM 5 // FIXME
+#  define MRL_COMMAND_TOKEN_NUM 129 // FIXME
 #endif
 //-----------------------------------------------------------------------------
 // Define you prompt string here. You can use colors escape code,

@@ -1041,7 +1041,7 @@ void cli_radio_rxdc(int argc, char* const argv[], const cli_cmd_t *cmd)
 //-----------------------------------------------------------------------------
 void cli_radio_wave(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // radio wave
-  int8_t retv = sx128x_standby(&Radio, SX128X_STANDBY_XOSC);
+  int8_t retv = sx128x_restore(&Radio);
   if (retv != SX128X_ERR_NONE) return;
   
   retv = sx128x_tx_wave(&Radio);
@@ -1321,7 +1321,7 @@ void cli_ranging(int argc, char* const argv[], const cli_cmd_t *cmd)
 void cli_ranging_advanced(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // ranging advanced {0|1}
   uint8_t on = sx128x_get_advanced_ranging(&Radio);
-  if (argc > 1)
+  if (argc > 0)
   { // on/off Advanced Ranging
     int8_t retv;
     on = !!mrl_str2int(argv[0], on, 0);
@@ -2050,12 +2050,12 @@ void cli_fsm(int argc, char* const argv[], const cli_cmd_t *cmd)
 //-----------------------------------------------------------------------------
 void cli_sweep(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // sweep [Fmin[kHz] Fmax[kHz] S[kHz/sec]]
-  if (argc > 0) Opt.fsm.sweep_min = mrl_str2int(argv[0], AFSM_SWEEP_MIN, 10) * 1000;
-  if (argc > 1) Opt.fsm.sweep_max = mrl_str2int(argv[1], AFSM_SWEEP_MAX, 10) * 1000;
+  if (argc > 0) Opt.fsm.sweep_min = mrl_str2int(argv[0], AFSM_SWEEP_MIN, 10);
+  if (argc > 1) Opt.fsm.sweep_max = mrl_str2int(argv[1], AFSM_SWEEP_MAX, 10);
   if (argc > 2) Opt.fsm.sweep_f   = mrl_str2int(argv[2], AFSM_SWEEP_F,   10);
 
-  print_str("sweep: Fmin="); print_uint(Opt.fsm.sweep_min / 1000);
-  print_str("kHz Fmax=");    print_uint(Opt.fsm.sweep_max / 1000);
+  print_str("sweep: Fmin="); print_uint(Opt.fsm.sweep_min);
+  print_str("kHz Fmax=");    print_uint(Opt.fsm.sweep_max);
   print_str("kHz S=");       print_int( Opt.fsm.sweep_f);
   print_str("kHz/sec\r\n");
 }

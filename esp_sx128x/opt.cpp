@@ -49,6 +49,9 @@ void opt_read_from_flash(opt_t *opt, tfs_t *tfs)
                   (void*) opt, sizeof(opt_t),
                   &size, &cnt);
 
+  // FIXME: set default IRQ mask 
+  opt->radio.irq_mask = SX128X_IRQ_ALL & (~SX128X_IRQ_PREAMBLE_DETECTED);
+
   if ((retv & ~TFS_ERR_DELETED) == TFS_SUCCESS && size == sizeof(opt_t))
   {
     print_str("read config from EEPROM success\r\n");

@@ -1745,6 +1745,7 @@ int8_t sx128x_set_advanced_ranging(sx128x_t *self, uint8_t on)
     retv = sx128x_irq_dio_mask(
              self,
              self->pars->irq_mask | SX128X_IRQ_ADVANCED_RANGING_DONE,
+             //!!!SX128X_IRQ_ADVANCED_RANGING_DONE,
              self->pars->dio1_mask,
              self->pars->dio2_mask,
              self->pars->dio3_mask);
@@ -1776,7 +1777,8 @@ int8_t sx128x_set_advanced_ranging(sx128x_t *self, uint8_t on)
 
     // 2.1 restore interrupt mask
     retv = sx128x_irq_dio_mask(self,
-                               self->pars->irq_mask,
+                               self->pars->irq_mask & (~SX128X_IRQ_ADVANCED_RANGING_DONE),
+                               //SX128X_IRQ_ALL & (~SX128X_IRQ_ADVANCED_RANGING_DONE),
                                self->pars->dio1_mask,
                                self->pars->dio2_mask,
                                self->pars->dio3_mask);
