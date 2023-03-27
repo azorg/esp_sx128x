@@ -14,6 +14,10 @@
 #include "eeprom.h"
 #include "tfs.h"
 //-----------------------------------------------------------------------------
+#ifdef ARDUINO_USBCDC
+#  include "usbcdc.h"
+#endif
+//-----------------------------------------------------------------------------
 void ticker_callback() {
 
   if ((Ticks % TICKER_HZ) == 0 && Ticks >= TICKER_HZ) {
@@ -28,7 +32,18 @@ void ticker_callback() {
 //-----------------------------------------------------------------------------
 void setup() {
   // setup UART
+#if ARDUINO_USB_CDC_ON_BOOT
+  // Serial0 -> UART, Serial -> USB-CDC
+  Serial0.begin(BAUDRATE);
+#else
+  // Serial -> UART, Serial1 -> USB-CDC
   Serial.begin(BAUDRATE);
+#endif
+
+#ifdef ARDUINO_USBCDC
+  // setup USB-CDC
+  usbcdc_begin();
+#endif
   
   // print hello message
   print_str("\r\n\r\n" HOST_NAME " started\r\n");
