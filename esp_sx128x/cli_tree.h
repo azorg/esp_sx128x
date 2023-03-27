@@ -28,7 +28,7 @@ cli_cmd_t const cli_tree[] = {
 
   _F( 10,  -1, cli_led,             "led",        " {0|1}",            "1=on/0=off LED")
   _F( 11,  10, cli_led_blink,       "blink",      " [N]",              "blink LED N times")
-  _F( 12,  -1, cli_pin,             "pin",        " gpio [0|1]",        "read/write digital pin")
+  _F( 12,  -1, cli_pin,             "pin",        " gpio [0|1]",       "read/write digital pin")
 
   _F( 20,  -1, cli_help,            "sys",        "",                  "system information")
   _F( 21,  20, cli_sys_info,        "info",       "",                  "print system information")
