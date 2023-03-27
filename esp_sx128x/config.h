@@ -19,9 +19,9 @@
 #define ARDUINO
 #endif
 //-----------------------------------------------------------------------------
-// user USB-CDC on Lolin S2 mini etc
+// user USB-CDC on "Lolin S2 mini" board etc
 // FIXME: don't work yet!
-//#define ARDUINO_USBCDC
+#define ARDUINO_USBCDC
 //-----------------------------------------------------------------------------
 #define ABOUT_STRING HOST_NAME " + SX128x test"
 #define VERSION_SOFTWARE_STR "0.0.1"  // software version
@@ -52,15 +52,15 @@
 #define SX128X_USE_GFSK     // use GFSK mode
 #define SX128X_USE_BLE      // use BLE mode
 
-#define SX128X_NRST_PIN 4   // GPIO4
+//#define SX128X_NRST_PIN 4   // GPIO4
 #define SX128X_NSS_PIN 5    // GPIO5 VSPI_SS
 #define SX128X_DIO1_PIN 16  // GPIO16
 #define SX128X_BUSY_PIN 17  // GPIO17
 #define SX128X_SCK_PIN 18   // GPIO18 VSPI_SCLK
 #define SX128X_MISO_PIN 19  // GPIO19 VSPI_MISO
 #define SX128X_MOSI_PIN 23  // GPIO23 VSPI_MOSI
-#define SX128X_TXEN_PIN 32  // GPIO32
-#define SX128X_RXEN_PIN 33  // GPIO33
+//#define SX128X_TXEN_PIN 32  // GPIO32
+//#define SX128X_RXEN_PIN 33  // GPIO33
 
 //#define SX128X_SPI_ALTERNATE_PINS // only for ESP32, not for ESP8266
 //#ifndef SX128X_HW_SPI vspi // or hspi or (&SPI)

@@ -3,4 +3,5 @@
 [+] debug requester/responder FSM
 [+] debug rangaring master/slave
 [-] debug advanced rangaring
+[-] add USB-CDC support
 

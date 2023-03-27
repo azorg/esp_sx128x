@@ -17,6 +17,10 @@
 #include "sx128x.h"
 #include "sx128x_hw_arduino.h"
 //-----------------------------------------------------------------------------
+#ifdef ARDUINO_USBCDC
+#  include "usbcdc.h"
+#endif
+//-----------------------------------------------------------------------------
 #define CLI_COMPL_NUM 50 // max variant of MicroRL complettion
 #define CLI_MAX_CMD   10 // maximum number of tokens
 //-----------------------------------------------------------------------------
@@ -53,7 +57,16 @@ static void cli_print(const char *str)
 // получить код нажатой клавиши
 int cli_inkey()
 { // return -1 if no data is available
+#ifdef ARDUINO_USBCDC
+  uint8_t b;
+  int retv = USBSerial.available();
+  if (retv >= 1)
+    retv = USBSerial.read(&b, 1);
+    if (retv == 1) return (int) b;
+  return -1;
+#else
   return Serial.read();
+#endif
 }
 //-----------------------------------------------------------------------------
 // execute callback for microrl library

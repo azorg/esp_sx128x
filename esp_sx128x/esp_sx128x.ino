@@ -31,22 +31,34 @@ void ticker_callback() {
 }
 //-----------------------------------------------------------------------------
 void setup() {
+  // setup blink LED
+  Led.begin(LED_PIN, LED_INVERT, LED_BLINK_ON, LED_BLINK_OFF);
+
+  Led.on();
+
   // setup UART
-#if ARDUINO_USB_CDC_ON_BOOT
+#ifdef ARDUINO_USBCDC
+#  if ARDUINO_USB_CDC_ON_BOOT
   // Serial0 -> UART, Serial -> USB-CDC
   Serial0.begin(BAUDRATE);
-#else
+#  else
   // Serial -> UART, Serial1 -> USB-CDC
+  Serial.begin(BAUDRATE);
+#  endif
+#else
+  // Serial -> UART, No USB-CDC
   Serial.begin(BAUDRATE);
 #endif
 
 #ifdef ARDUINO_USBCDC
   // setup USB-CDC
   usbcdc_begin();
+  delay(1000);
 #endif
   
   // print hello message
   print_str("\r\n\r\n" HOST_NAME " started\r\n");
+  print_flush();
 
   // set EEPROM
   EEPROM_BEGIN(TFS_PAGE_SIZE * TFS_PAGE_NUM);
@@ -58,6 +70,7 @@ void setup() {
   opt_default(&Opt); // set to default all options
   opt_read_from_flash(&Opt, &Tfs);
 
+#if 0 //!!!
   // init SPI and SPI pins
   print_str("SX128X_SPI_CLOCK=");  
   print_dint(SX128X_SPI_CLOCK / 100000);  
@@ -78,10 +91,8 @@ void setup() {
                             sx128x_hw_busy_wait, sx128x_hw_exchange,
                             &Opt.radio, NULL);
   print_ival("sx128x_init() return ", retv);
-  
-  // setup blink LED
-  Led.begin(LED_PIN, LED_INVERT, LED_BLINK_ON, LED_BLINK_OFF);
 
+  
   // setup onboard button
   pinMode(BUTTON_PIN, INPUT);
   Button = digitalRead(BUTTON_PIN);
@@ -107,7 +118,7 @@ void setup() {
   print_uval("verbose=", Opt.verbose);
 
   if (Autostart) {
-    retv = sx128x_sleep(&Radio, SX128X_SLEEP_OFF_RETENTION);
+    int8_t retv = sx128x_sleep(&Radio, SX128X_SLEEP_OFF_RETENTION);
     print_ival("sx128x_sleep() return ", retv);
   } else {
     // set RXEN and TXEN from FLASH
@@ -116,16 +127,22 @@ void setup() {
     print_ival("set RXEN=", RXEN);
     print_ival("set TXEN=", TXEN);
   }
+#endif //!!!
   
   // init CLI (MicroRL)
   cli_init();
   print_flush();
+
+  Led.off();
 }
 //-----------------------------------------------------------------------------
 void loop() {
   unsigned long ms = millis();
   unsigned long t = TIME_FUNC();
   Led.yield(ms);
+
+#if 0 //!!!
+
   Ticker.yield(ms);
   Fsm.yield(t);
 
@@ -136,10 +153,14 @@ void loop() {
  
   // check SX128x IRQ (DIO1) flag
   sx128x_irq();
-  
+
+#endif //!!!
+
   // check user CLI commands
   cli_loop();
   
+#if 0 //!!!
+
   // check onboard button
   uint8_t btn = digitalRead(BUTTON_PIN);
   if (btn == 0 && Button == 1) {
@@ -162,7 +183,24 @@ void loop() {
     mrl_refresh(&Mrl);
   }
 
+#endif //!!!
+
 }
+//-----------------------------------------------------------------------------
+#if 0
+void loop() {
+  static int cnt = 0;
+
+  Serial.printf("%i\r\n", cnt);
+  cnt++;
+
+  digitalWrite(LED_PIN, HIGH);
+  delay(200);
+
+  digitalWrite(LED_PIN, LOW);
+  delay(800);
+}
+#endif
 //-----------------------------------------------------------------------------
 /*** end of "esp32_sx128x.ino" file ***/
 
