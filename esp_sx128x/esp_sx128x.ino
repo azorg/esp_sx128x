@@ -40,24 +40,37 @@ void setup() {
 #ifdef ARDUINO_USBCDC
 #  if ARDUINO_USB_CDC_ON_BOOT
   // Serial0 -> UART, Serial -> USB-CDC
+#    if defined(RXPIN) && defined(TXPIN)
+  Serial0.begin(BAUDRATE, SERIAL_8N1, RXPIN, TXPIN);
+#    else
   Serial0.begin(BAUDRATE);
+#    endif
 #  else
   // Serial -> UART, Serial1 -> USB-CDC
+#    if defined(RXPIN) && defined(TXPIN)
+  Serial.begin(BAUDRATE, SERIAL_8N1, RXPIN, TXPIN);
+#    else
   Serial.begin(BAUDRATE);
+#    endif
 #  endif
 #else
   // Serial -> UART, No USB-CDC
+#    if defined(RXPIN) && defined(TXPIN)
+  Serial.begin(BAUDRATE, SERIAL_8N1, RXPIN, TXPIN);
+#    else
   Serial.begin(BAUDRATE);
+#    endif
 #endif
 
 #ifdef ARDUINO_USBCDC
   // setup USB-CDC
   usbcdc_begin();
-  delay(1000);
+  delay(1000); // FIXME: magic
 #endif
   
   // print hello message
   print_str("\r\n\r\n" HOST_NAME " started\r\n");
+  printf("printf()\r\n");
   print_flush();
 
   // set EEPROM
@@ -70,7 +83,6 @@ void setup() {
   opt_default(&Opt); // set to default all options
   opt_read_from_flash(&Opt, &Tfs);
 
-#if 0 //!!!
   // init SPI and SPI pins
   print_str("SX128X_SPI_CLOCK=");  
   print_dint(SX128X_SPI_CLOCK / 100000);  
@@ -92,15 +104,17 @@ void setup() {
                             &Opt.radio, NULL);
   print_ival("sx128x_init() return ", retv);
 
-  
   // setup onboard button
-  pinMode(BUTTON_PIN, INPUT);
+#ifdef BUTTON_PIN
+  //pinMode(BUTTON_PIN, INPUT);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
   Button = digitalRead(BUTTON_PIN);
+#endif
 
   // setup ticker
   Ticker.begin(ticker_callback, TICKER_MS, true, millis());
   Ticks = 0;
-  
+
   // init FSM
   Fsm.begin(&Led,             // on board LED
             &Opt.fsm,         // FSM options
@@ -127,8 +141,7 @@ void setup() {
     print_ival("set RXEN=", RXEN);
     print_ival("set TXEN=", TXEN);
   }
-#endif //!!!
-  
+
   // init CLI (MicroRL)
   cli_init();
   print_flush();
@@ -141,8 +154,6 @@ void loop() {
   unsigned long t = TIME_FUNC();
   Led.yield(ms);
 
-#if 0 //!!!
-
   Ticker.yield(ms);
   Fsm.yield(t);
 
@@ -154,13 +165,10 @@ void loop() {
   // check SX128x IRQ (DIO1) flag
   sx128x_irq();
 
-#endif //!!!
-
   // check user CLI commands
   cli_loop();
   
-#if 0 //!!!
-
+#ifdef BUTTON_PIN
   // check onboard button
   uint8_t btn = digitalRead(BUTTON_PIN);
   if (btn == 0 && Button == 1) {
@@ -170,6 +178,7 @@ void loop() {
     mrl_refresh(&Mrl);
   }
   Button = btn;
+#endif
   
   // check autostart
   if (Autostart && Seconds >= Opt.delay) {
@@ -182,9 +191,6 @@ void loop() {
     Fsm.start();
     mrl_refresh(&Mrl);
   }
-
-#endif //!!!
-
 }
 //-----------------------------------------------------------------------------
 #if 0

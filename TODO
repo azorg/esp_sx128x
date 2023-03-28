@@ -2,6 +2,6 @@
 [~] fix bug "unstable hardware reset"
 [+] debug requester/responder FSM
 [+] debug rangaring master/slave
+[+] add USB-CDC support (Lolin S2 mini etc)
 [-] debug advanced rangaring
-[-] add USB-CDC support
 

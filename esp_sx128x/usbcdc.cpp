@@ -63,12 +63,12 @@ static void usbcdc_evt_callback(void* arg, esp_event_base_t event_base,
       case ARDUINO_USB_CDC_RX_EVENT:
         // FIXME: copy to RX FIFO/buffer
         HWSerial.printf("CDC RX [%u]:", data->rx.len);
+        if (0) // FIXME: dead code, do nothing
         {
-            uint8_t buf[data->rx.len];
-            size_t len = USBSerial.read(buf, data->rx.len);
-            HWSerial.write(buf, len);
+          //uint8_t buf[data->rx.len];
+          //size_t len = USBSerial.read(buf, data->rx.len);
+          //HWSerial.write(buf, len);
         }
-        //!!!HWSerial.println();
         break;
        case ARDUINO_USB_CDC_RX_OVERFLOW_EVENT:
         HWSerial.printf("CDC RX Overflow of %d bytes",

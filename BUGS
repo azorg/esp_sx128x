@@ -1,4 +1,3 @@
 - hardware reset SX128x don't work good and stable (sx128x_hw_reset())
 - Advanced Ranging do not work yet
-- USB-CDC on Lolin S2mini don't work yet
 

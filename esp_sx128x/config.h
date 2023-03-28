@@ -29,7 +29,10 @@
 
 #define VERBOSE 0  // verbose level by default
 
+// UART
 #define BAUDRATE 115200  // UART baudrate
+#define RXPIN 4 // Rx=4, Tx=5 will work for ESP32, S2, S3 and C3
+#define TXPIN 5
 
 #define TICKER_MS 10                  // ticker period [мс]
 #define TICKER_HZ (1000 / TICKER_MS)  // ticker frequency [Гц]
@@ -52,7 +55,7 @@
 #define SX128X_USE_GFSK     // use GFSK mode
 #define SX128X_USE_BLE      // use BLE mode
 
-//#define SX128X_NRST_PIN 4   // GPIO4
+#define SX128X_NRST_PIN 4   // GPIO4
 #define SX128X_NSS_PIN 5    // GPIO5 VSPI_SS
 #define SX128X_DIO1_PIN 16  // GPIO16
 #define SX128X_BUSY_PIN 17  // GPIO17
