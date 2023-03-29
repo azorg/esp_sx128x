@@ -130,8 +130,10 @@ cli_cmd_t const cli_tree[] = {
   _F(152, 150, cli_buffer_read,     "read",       " Ad [Num]",         "read from RX/TX buffer")
   _F(153, 150, cli_buffer_write,    "write",      " Ad [b0 b1..]",     "write data to RX/TX buffer")
 
-  _F(160,  -1, cli_fixed,           "fixed",      " [0|1]",            "get/set fixed/variable size of send packet")
+  _F(160,  -1, cli_tx_timeout,      "tx_timeout", " [ms]",             "get/set TX timeout [ms]")
 
+  _F(165,  -1, cli_fixed,           "fixed",      " [0|1]",            "get/set fixed/variable size of send packet")
+  
   _F(170,  -1, cli_data,            "data",       " [b0 b1..]",        "get/set TX data bytes")
   _F(171, 170, cli_data_fill,       "fill",       " [size value]",     "fill TX data bytes")
   _F(172, 170, cli_data_size,       "size",       " [size]",           "get/set RX/TX data size")

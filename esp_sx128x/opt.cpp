@@ -21,6 +21,9 @@ void opt_default(opt_t *opt)
   // SX128x pars
   memcpy((void*) &opt->radio, (const void*) &sx128x_pars_default,
          sizeof(sx128x_pars_t));
+  
+  // TX timeout (0 - disable) [ms]
+  opt->tx_timeout = 0;
 
   // TX/RX packet data
   opt->data_size = sizeof(data);

@@ -577,7 +577,7 @@ int8_t sx128x_wakeup(sx128x_t *self, uint8_t config)
 #endif // SX128X_DEBUG_EXTRA
 
 #ifdef SX128X_USE_BUGFIX
-  if (1)
+  if (0) //!!! FIXME
   { // bug fix
     uint8_t mode;
     static const uint8_t blob[] = SX128X_REG_RSSI_SNR_BUGFIX_BLOB;

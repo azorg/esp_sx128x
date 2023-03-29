@@ -37,8 +37,8 @@
 #define UART_BAUDRATE 115200  // UART baudrate
 
 #ifdef WEMOS_S2_MINI
-//#  define UART_RXPIN 2
-//#  define UART_TXPIN 3
+#  define UART_RXPIN 2
+#  define UART_TXPIN 3
 #endif
 //-----------------------------------------------------------------------------
 #define TICKER_MS 10                  // ticker period [мс]
@@ -72,7 +72,8 @@
 #  define SX128X_MISO_PIN 14 // GPIO14
 // Note: TXEN/RXEN don't use with E28-2G4M12S
 #  define SX128X_SPI_ALTERNATE_PINS
-#else
+#  define SX128X_SPI_CLOCK 6000000UL // 6 MHz
+#else // ESP32, ESP8266
 #  define SX128X_NRST_PIN  4 // GPIO4
 #  define SX128X_NSS_PIN   5 // GPIO5 VSPI_SS
 #  define SX128X_DIO1_PIN 16 // GPIO16
@@ -82,12 +83,10 @@
 #  define SX128X_MOSI_PIN 23 // GPIO23 VSPI_MOSI
 #  define SX128X_TXEN_PIN 32 // GPIO32
 #  define SX128X_RXEN_PIN 33 // GPIO33
-#endif
-
+#  define SX128X_SPI_CLOCK 12000000UL // 12 MHz
 //#define SX128X_SPI_ALTERNATE_PINS // only for ESP32, not for ESP8266
 //#ifndef SX128X_HW_SPI vspi // or hspi or (&SPI)
-
-#define SX128X_SPI_CLOCK 12000000UL  // 12 MHz
+#endif
 //-----------------------------------------------------------------------------
 #define SX128X_USE_EXTRA   // use some extra functions
 #define SX128X_USE_BUGFIX  // use bug fix of known limitations

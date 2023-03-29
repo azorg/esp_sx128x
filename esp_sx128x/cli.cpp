@@ -702,7 +702,11 @@ void cli_radio_wakeup(int argc, char* const argv[], const cli_cmd_t *cmd)
   Led.off();
   
   retv = sx128x_wakeup(&Radio, conf);
-  if (retv != SX128X_ERR_NONE) return;
+  if (retv != SX128X_ERR_NONE)
+  {
+    print_ival("radio wakeup error: retv=", retv);
+    return;
+  }
 
   setRXEN(Opt.rxen);
   setTXEN(Opt.txen);
@@ -1820,6 +1824,12 @@ void cli_buffer_write(int argc, char* const argv[], const cli_cmd_t *cmd)
   }
 }
 //-----------------------------------------------------------------------------
+void cli_tx_timeout(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // tx_timeout [ms]
+  if (argc > 0) Opt.tx_timeout = mrl_str2int(argv[0], 0, 0);
+  print_ival("tx_timeout=", Opt.tx_timeout);
+}
+//-----------------------------------------------------------------------------
 void cli_fixed(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // fixed [0|1]
   if (argc > 0) Opt.radio.fixed = !!mrl_str2int(argv[0], 0, 10);
@@ -1990,8 +2000,8 @@ void cli_status(int argc, char* const argv[], const cli_cmd_t *cmd)
 void cli_send(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // send [to]
   int8_t retv;
-  uint32_t timeout = SX128X_TX_TIMEOUT_SINGLE;
-  if (argc > 0) timeout = (uint32_t) mrl_str2int(argv[0], timeout, 0);
+  uint32_t timeout = Opt.tx_timeout;
+  if (argc > 0) timeout = mrl_str2int(argv[0], timeout, 0);
 
   retv = sx128x_send(&Radio,
                      (const uint8_t*) Opt.data, Opt.data_size,

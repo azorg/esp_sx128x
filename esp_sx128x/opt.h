@@ -34,6 +34,7 @@ typedef struct {
   uint8_t rxen;                 // RXEN state {0|1}
   uint8_t txen;                 // TXEN state {0|1}
   sx128x_pars_t radio;          // radio options of SX128x
+  uint32_t tx_timeout;          // TX timeout (0 - disable) [ms]
   uint8_t data[OPT_DATA_SIZE];  // RX/TX packet data
   uint8_t data_size;            // RX/TX packet data size (bytes)
   char code[OPT_CODE_SIZE + 1]; // OOK code (like "100101")

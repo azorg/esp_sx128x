@@ -31,12 +31,13 @@ void AFsm::start_fsm(unsigned long t)
 
   if (_run)
   {
-    if (_stop && !txrx && !wus)
+    if (_stop /*&& !txrx*/ && !wus) // FIXME
     { // stop period timer
       _stop      = 0;
       _run       = 0;
       txrx_start = 0;
       restore    = 1;
+      txrx       = 0; // FIXME 
     }
     else if (((long)(t - _t)) >= pars->t * TIME_FACTOR)
     {
@@ -143,7 +144,7 @@ void AFsm::txrx_fsm(unsigned long t)
         setRXEN(0);
         setTXEN(1);
         retv = sx128x_send(radio, data, *data_size, *fixed,
-                           SX128X_TX_TIMEOUT_SINGLE, SX128X_TIME_BASE_1MS);
+                           Opt.tx_timeout, SX128X_TIME_BASE_1MS);
       }
       else if (pars->mode == AFSM_RM)
       { // ranging master
@@ -298,7 +299,7 @@ void AFsm::rx_done()
     setRXEN(0);
     setTXEN(1);
     retv = sx128x_send(radio, data, *data_size, *fixed,
-                       SX128X_TX_TIMEOUT_SINGLE, SX128X_TIME_BASE_1MS);
+                       Opt.tx_timeout, SX128X_TIME_BASE_1MS);
   }
   else if (pars->mode == AFSM_RM && _run)
   { // ranging master mode => go to state 1 and sleep

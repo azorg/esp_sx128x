@@ -109,7 +109,7 @@ void setup() {
   // setup onboard button
 #ifdef BUTTON_PIN
   //pinMode(BUTTON_PIN, INPUT);
-  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_PIN, INPUT_PULLUP); // FIXME
   Button = digitalRead(BUTTON_PIN);
 #endif
 
