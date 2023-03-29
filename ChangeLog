@@ -1,6 +1,7 @@
 2023.03.29:
  * success test "Wemos S2 Mini ESP32" + "E28-2G4M12S"
  * switch SPI to 6MHz for "S2 Mini"
+ * start work under Wi-Fi connection
 
 2023.03.28:
  * start USB-CDC for "Wemos S2 Mini" board

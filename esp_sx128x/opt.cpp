@@ -16,6 +16,9 @@ void opt_default(opt_t *opt)
 
   opt->verbose = VERBOSE;
 
+  strcpy(opt->wifi_ssid,   "WiFi_SSID");
+  strcpy(opt->wifi_passwd, "WiFi_passwd");
+
   opt->rxen = opt->txen = 0; // RXEN and TXEN by deafault OFF
 
   // SX128x pars

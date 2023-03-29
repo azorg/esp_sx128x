@@ -3,6 +3,8 @@
  */
 
 //-----------------------------------------------------------------------------
+#include <WiFi.h>
+//-----------------------------------------------------------------------------
 #include "config.h"
 #include "global.h"
 #include "cli.h"
@@ -112,6 +114,35 @@ void setup() {
   pinMode(BUTTON_PIN, INPUT_PULLUP); // FIXME
   Button = digitalRead(BUTTON_PIN);
 #endif
+
+  // connect to Wi-Fi Access Point
+  if (Opt.wifi_ssid[0] != '\0')
+  {
+    unsigned cnt = 0;
+    unsigned timeout = WIFI_TIMEOUT * 2;
+    Serial.print("Wi-Fi connecting to ");
+    Serial.println(Opt.wifi_ssid);
+
+    WiFi.begin(Opt.wifi_ssid, Opt.wifi_passwd);
+
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+      cnt++;
+      if (timeout && cnt > timeout) break;
+    }
+    Serial.println("");
+
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.print("Wi-Fi connected in ");
+      Serial.print((cnt + 1) / 2);
+      Serial.println(" seconds");
+      Serial.print("IP address: ");
+      Serial.println(WiFi.localIP());
+
+      WiFi.setAutoReconnect(true);
+    }
+  }
 
   // setup ticker
   Ticker.begin(ticker_callback, TICKER_MS, true, millis());

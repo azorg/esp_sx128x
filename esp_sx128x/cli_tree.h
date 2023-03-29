@@ -43,7 +43,13 @@ cli_cmd_t const cli_tree[] = {
   _F( 35,  30, cli_eeprom_diff,     "diff",       "",                  "find differece between current options and saved in EEPROM")
   _F( 36,  30, cli_eeprom_dump,     "dump",       " [offset size]",    "hex dump region in EEPROM")
 
-  _F( 40,  -1, cli_def,             "def",        "",                  "set to default all options (opt_t)")
+  _F( 37,  -1, cli_def,             "def",        "",                  "set to default all options (opt_t)")
+  
+  _F( 40,  -1, cli_help,            "wifi",       "",                  "Wi-Fi options")
+  _F( 41,  40, cli_wifi_ssid,       "ssid",       " [SSID]",           "get/set Wi-Fi SSID")
+  _F( 42,  40, cli_wifi_passwd,     "passwd",     " [passwd]",         "get/set Wi-Fi password")
+  _F( 43,  40, cli_wifi_disable,    "disable",    "",                  "disable Wi-Fi (reset SSID)")
+  _F( 44,  40, cli_wifi_status,     "status",     "",                  "print Wi-Fi status")
   
   _F( 50,  -1, cli_help,            "hw",         "",                  "hardware direct/status commands")
   _F( 51,  50, cli_hw_reset,        "reset",      " [t1 t2]",          "hardware reset SX128x by NRST")

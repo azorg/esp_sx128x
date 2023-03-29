@@ -10,6 +10,10 @@
 #include "tfs.h"
 #include "afsm.h"
 //----------------------------------------------------------------------------
+#ifndef OPT_WIFI
+#  define OPT_WIFI 33 // 32 chars + '\0' at the end
+#endif
+
 #ifndef OPT_DATA_SIZE
 #  define OPT_DATA_SIZE 64
 #endif
@@ -31,6 +35,8 @@
 // all options (saved to / restore from FLASH)
 typedef struct {
   uint8_t verbose;              // verbose level (0, 1, 2 or 3)
+  char wifi_ssid[OPT_WIFI];     // Wi-Fi SSID
+  char wifi_passwd[OPT_WIFI];   // WiFi password
   uint8_t rxen;                 // RXEN state {0|1}
   uint8_t txen;                 // TXEN state {0|1}
   sx128x_pars_t radio;          // radio options of SX128x

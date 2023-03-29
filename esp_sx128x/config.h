@@ -120,6 +120,8 @@
 #define OPT_AUTOSTART 0        // auto start FSM TX on reboot {0|1}
 #define OPT_AUTOSTART_DELAY 3  // auto start delay [sec]
 //-----------------------------------------------------------------------------
-#endif  // CONFIG_H
+#define WIFI_TIMEOUT 15 // Wi-Fi connetion timeout [seconds]
+//-----------------------------------------------------------------------------
+#endif // CONFIG_H
 
 /*** end of "config.h" file ***/

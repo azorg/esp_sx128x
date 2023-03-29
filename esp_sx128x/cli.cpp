@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <Arduino.h>
+#include <WiFi.h>
 #include "config.h"
 #include "global.h"
 #include "print.h"
@@ -515,6 +516,34 @@ void cli_def(int argc, char* const argv[], const cli_cmd_t *cmd)
   if (retv != SX128X_ERR_NONE) return;
 
   print_str("set to default all options\r\n");
+}
+//=============================================================================
+void cli_wifi_ssid(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // wifi ssid [SSID]
+  if (argc > 0) strncpy(Opt.wifi_ssid, argv[0], OPT_WIFI - 1);
+  print_sval("SSID=", Opt.wifi_ssid);
+}
+//-----------------------------------------------------------------------------
+void cli_wifi_passwd(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // wifi passwd [PASSWD]
+  if (argc > 0) strncpy(Opt.wifi_passwd, argv[0], OPT_WIFI - 1);
+  print_sval("passwd=", Opt.wifi_passwd);
+}
+//-----------------------------------------------------------------------------
+void cli_wifi_disable(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // wifi disable
+  strncpy(Opt.wifi_ssid,   "", OPT_WIFI - 1);
+  //strncpy(Opt.wifi_passwd, "", OPT_WIFI - 1);
+}
+//-----------------------------------------------------------------------------
+void cli_wifi_status(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // wifi status
+  Serial.print("Wi-Fi is ");
+  Serial.println(WiFi.isConnected() ? "connected" : "disconnected");
+  Serial.print("AutoReconnect is ");
+  Serial.println(WiFi.getAutoReconnect() ? "true" : "false");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
 }
 //=============================================================================
 void cli_hw_reset(int argc, char* const argv[], const cli_cmd_t *cmd)
