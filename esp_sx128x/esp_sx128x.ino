@@ -134,8 +134,20 @@ void setup() {
   print_uval("verbose=", Opt.verbose);
 
   if (Autostart) {
+    print_str("mode=");
+    print_uint(Opt.fsm.mode);
+
+    if (Opt.verbose)
+    {
+      print_str(" (");
+      print_str(afsm_mode_string[Opt.fsm.mode]);
+      print_chr(')');
+    }
+    print_eol();
+
     int8_t retv = sx128x_sleep(&Radio, SX128X_SLEEP_OFF_RETENTION);
     print_ival("sx128x_sleep() return ", retv);
+
   } else {
 #if defined(SX128X_RXEN_PIN) && defined(SX128X_TXEN_PIN)
     // set RXEN and TXEN from FLASH
