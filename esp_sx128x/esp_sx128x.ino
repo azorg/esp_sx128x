@@ -40,25 +40,25 @@ void setup() {
 #ifdef ARDUINO_USBCDC
 #  if ARDUINO_USB_CDC_ON_BOOT
   // Serial0 -> UART, Serial -> USB-CDC
-#    if defined(RXPIN) && defined(TXPIN)
-  Serial0.begin(BAUDRATE, SERIAL_8N1, RXPIN, TXPIN);
+#    if defined(UART_RXPIN) && defined(UART_TXPIN)
+  Serial0.begin(UART_BAUDRATE, SERIAL_8N1, UART_RXPIN, UART_TXPIN);
 #    else
-  Serial0.begin(BAUDRATE);
+  Serial0.begin(UART_BAUDRATE);
 #    endif
 #  else
   // Serial -> UART, Serial1 -> USB-CDC
-#    if defined(RXPIN) && defined(TXPIN)
-  Serial.begin(BAUDRATE, SERIAL_8N1, RXPIN, TXPIN);
+#    if defined(UART_RXPIN) && defined(UART_TXPIN)
+  Serial.begin(UART_BAUDRATE, SERIAL_8N1, UART_RXPIN, UART_TXPIN);
 #    else
-  Serial.begin(BAUDRATE);
+  Serial.begin(UART_BAUDRATE);
 #    endif
 #  endif
 #else
   // Serial -> UART, No USB-CDC
-#    if defined(RXPIN) && defined(TXPIN)
-  Serial.begin(BAUDRATE, SERIAL_8N1, RXPIN, TXPIN);
+#    if defined(UART_RXPIN) && defined(UART_TXPIN)
+  Serial.begin(UART_BAUDRATE, SERIAL_8N1, UART_RXPIN, UART_TXPIN);
 #    else
-  Serial.begin(BAUDRATE);
+  Serial.begin(UART_BAUDRATE);
 #    endif
 #endif
 
@@ -89,9 +89,11 @@ void setup() {
   print_str("MHz\r\n");  
   sx128x_hw_begin();
   
+#if defined(SX128X_RXEN_PIN) && defined(SX128X_TXEN_PIN)
   // reset RXEN/TXEN by default
   setRXEN(0);
   setTXEN(0);
+#endif
 
   // hardware reset SX128x
   delay(100); // FIXME: magic
@@ -135,11 +137,13 @@ void setup() {
     int8_t retv = sx128x_sleep(&Radio, SX128X_SLEEP_OFF_RETENTION);
     print_ival("sx128x_sleep() return ", retv);
   } else {
+#if defined(SX128X_RXEN_PIN) && defined(SX128X_TXEN_PIN)
     // set RXEN and TXEN from FLASH
     setRXEN(Opt.rxen);
     setTXEN(Opt.txen);
     print_ival("set RXEN=", RXEN);
     print_ival("set TXEN=", TXEN);
+#endif
   }
 
   // init CLI (MicroRL)

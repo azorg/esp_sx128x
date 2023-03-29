@@ -7,37 +7,44 @@
 #define CONFIG_H
 //-----------------------------------------------------------------------------
 #if defined(ESP32)
-#define ARDUINO_ESP
-#define ARDUINO_ESP32
-#define HOST_NAME "ESP32"
+#  define ARDUINO_ESP
+#  define ARDUINO_ESP32
+#  define HOST_NAME "ESP32"
 #elif defined(ESP8266)
-#define ARDUINO_ESP
-#define ARDUINO_ESP8266
-#define HOST_NAME "ESP8266"
+#  define ARDUINO_ESP
+#  define ARDUINO_ESP8266
+#  define HOST_NAME "ESP8266"
 #else
-#define HOST_NAME "Arduino"
-#define ARDUINO
+#  define HOST_NAME "Arduino"
+#  define ARDUINO
 #endif
 //-----------------------------------------------------------------------------
-// user USB-CDC on "Lolin S2 mini" board etc
-// FIXME: don't work yet!
-#define ARDUINO_USBCDC
+// Use Wemos S2 mini ESP32 board (Lolin S2 mini)
+#define WEMOS_S2_MINI
+//-----------------------------------------------------------------------------
+// user USB-CDC on "Wemos S2 mini ESP32" board etc
+#ifdef WEMOS_S2_MINI
+#  define ARDUINO_USBCDC
+#endif
 //-----------------------------------------------------------------------------
 #define ABOUT_STRING HOST_NAME " + SX128x test"
 #define VERSION_SOFTWARE_STR "0.0.1"  // software version
 #define VERSION_HARDWARE_STR "1"      // hardware revision
 
 #define VERBOSE 0  // verbose level by default
-
+//-----------------------------------------------------------------------------
 // UART
-#define BAUDRATE 115200  // UART baudrate
-#define RXPIN 4 // Rx=4, Tx=5 will work for ESP32, S2, S3 and C3
-#define TXPIN 5
+#define UART_BAUDRATE 115200  // UART baudrate
 
+#ifdef WEMOS_S2_MINI
+//#  define UART_RXPIN 2
+//#  define UART_TXPIN 3
+#endif
+//-----------------------------------------------------------------------------
 #define TICKER_MS 10                  // ticker period [мс]
 #define TICKER_HZ (1000 / TICKER_MS)  // ticker frequency [Гц]
-
-#define LED_PIN LED_BUILTIN  // onboard LED pin (GPIO2)
+//-----------------------------------------------------------------------------
+#define LED_PIN LED_BUILTIN  // onboard LED pin
 #ifdef ARDUINO_ESP8266
 #define LED_INVERT true  // LED pin ivert
 #else
@@ -55,15 +62,27 @@
 #define SX128X_USE_GFSK     // use GFSK mode
 #define SX128X_USE_BLE      // use BLE mode
 
-#define SX128X_NRST_PIN 4   // GPIO4
-#define SX128X_NSS_PIN 5    // GPIO5 VSPI_SS
-#define SX128X_DIO1_PIN 16  // GPIO16
-#define SX128X_BUSY_PIN 17  // GPIO17
-#define SX128X_SCK_PIN 18   // GPIO18 VSPI_SCLK
-#define SX128X_MISO_PIN 19  // GPIO19 VSPI_MISO
-#define SX128X_MOSI_PIN 23  // GPIO23 VSPI_MOSI
-//#define SX128X_TXEN_PIN 32  // GPIO32
-//#define SX128X_RXEN_PIN 33  // GPIO33
+#ifdef WEMOS_S2_MINI
+#  define SX128X_BUSY_PIN  8 // GPIO8
+#  define SX128X_NRST_PIN  9 // GPIO9
+#  define SX128X_NSS_PIN  10 // GPIO10
+#  define SX128X_DIO1_PIN 11 // GPIO11
+#  define SX128X_SCK_PIN  12 // GPIO12
+#  define SX128X_MOSI_PIN 13 // GPIO13
+#  define SX128X_MISO_PIN 14 // GPIO14
+// Note: TXEN/RXEN don't use with E28-2G4M12S
+#  define SX128X_SPI_ALTERNATE_PINS
+#else
+#  define SX128X_NRST_PIN  4 // GPIO4
+#  define SX128X_NSS_PIN   5 // GPIO5 VSPI_SS
+#  define SX128X_DIO1_PIN 16 // GPIO16
+#  define SX128X_BUSY_PIN 17 // GPIO17
+#  define SX128X_SCK_PIN  18 // GPIO18 VSPI_SCLK
+#  define SX128X_MISO_PIN 19 // GPIO19 VSPI_MISO
+#  define SX128X_MOSI_PIN 23 // GPIO23 VSPI_MOSI
+#  define SX128X_TXEN_PIN 32 // GPIO32
+#  define SX128X_RXEN_PIN 33 // GPIO33
+#endif
 
 //#define SX128X_SPI_ALTERNATE_PINS // only for ESP32, not for ESP8266
 //#ifndef SX128X_HW_SPI vspi // or hspi or (&SPI)
