@@ -1,3 +1,6 @@
+2023.04.02:
+ * start work under MQTT client
+
 2023.03.29:
  * success test "Wemos S2 Mini ESP32" + "E28-2G4M12S"
  * switch SPI to 6MHz for "S2 Mini"

@@ -15,6 +15,7 @@
 #include "sx128x.h"
 #include "eeprom.h"
 #include "tfs.h"
+#include "mqtt.h"
 //-----------------------------------------------------------------------------
 #ifdef ARDUINO_USBCDC
 #  include "usbcdc.h"

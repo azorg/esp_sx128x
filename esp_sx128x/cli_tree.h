@@ -162,6 +162,10 @@ cli_cmd_t const cli_tree[] = {
 
   _F(205,  -1, cli_autostart,       "autostart",  " [1|0 delay]",      "get/set autostart on reboot flag and delay [sec]")
 
+  _F(250,  -1, cli_help,            "mqtt",       "",                  "MQTT options")
+  _F(251, 250, cli_mqtt_server,     "server",     " [HOST PORT ID]",   "get/set MQTT server options")
+  _F(252, 250, cli_mqtt_client,     "client",     " [USER KEY]",       "get/set MQTT client options")
+
   _F( -1,  -1, NULL,                NULL,         NULL,                NULL)
 };
 //-----------------------------------------------------------------------------

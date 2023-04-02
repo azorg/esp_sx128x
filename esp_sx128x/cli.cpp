@@ -2135,6 +2135,26 @@ void cli_autostart(int argc, char* const argv[], const cli_cmd_t *cmd)
   print_str("sec\r\n");
 }
 //=============================================================================
+void cli_mqtt_server(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // mqtt server [HOST PORT ID]
+  if (argc > 0) strncpy(Opt.mqtt_host, argv[0], OPT_MQTT - 1);
+  if (argc > 1) Opt.mqtt_port = mrl_str2int(argv[1], 8883, 10);
+  if (argc > 2) Opt.mqtt_id   = mrl_str2int(argv[2], 1, 0);
+  
+  print_sval("MQTT host: ",      Opt.mqtt_host);
+  print_uval("MQTT port: ",      Opt.mqtt_port);
+  print_uval("MQTT client ID: ", Opt.mqtt_id);
+}
+//-----------------------------------------------------------------------------
+void cli_mqtt_client(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // mqtt server [USER KEY]
+  if (argc > 0) strncpy(Opt.mqtt_user, argv[0], OPT_MQTT - 1);
+  if (argc > 1) strncpy(Opt.mqtt_key,  argv[1], OPT_MQTT - 1);
+  
+  print_sval("MQTT user: ", Opt.mqtt_user);
+  print_sval("MQTT key: ",  Opt.mqtt_key);
+}
+//=============================================================================
 #ifdef MRL_USE_CTRL_C
 // Ctrl+C callback
 static void cli_sigint_cb()
