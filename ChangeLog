@@ -1,3 +1,6 @@
+2023.04.03:
+ + add mosquitto samples and TLS scripts
+
 2023.04.02:
  * start work under MQTT client
 
