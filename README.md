@@ -52,6 +52,9 @@ Look `doc/s2mini+e28-2g4m12s.pdf`
 minicom -c on -b 115200 -D /dev/ttyUSB0
 ```
 
+## MQTT
+Note: Adafruit MQTT library don't support QoS=2
+
 ## Available CLI commands
 look `COMMANDS.md`
 

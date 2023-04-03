@@ -3,5 +3,7 @@
 [+] debug requester/responder FSM
 [+] debug rangaring master/slave
 [+] add USB-CDC support (Lolin S2 mini etc)
+[~] add MQTT support
+[-] add telnet mode
 [-] debug advanced rangaring
 

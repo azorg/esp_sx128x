@@ -6,7 +6,7 @@ cd "$WDIR"
 
 . ./mqtt_conf.sh
 
-TOPIC="topic"
+TOPIC="#"
 
 [ "$MQTT_CLIENT_ID" ] && MQTT_CLIENT_ID="-i ${MQTT_CLIENT_ID}_sub"
 
