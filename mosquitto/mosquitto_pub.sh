@@ -6,8 +6,10 @@ cd "$WDIR"
 
 . ./mqtt_conf.sh
 
-TOPIC="sample/TLS"
+TOPIC="topic"
 MSG="Hello from mosquitto_pub!"
+
+[ "$MQTT_CLIENT_ID" ] && MQTT_CLIENT_ID="-i ${MQTT_CLIENT_ID}_pub"
 
 if [ "$MQTT_INSECURE" = "yes" ]
 then
@@ -16,8 +18,8 @@ then
                 -d \
                 -k $MQTT_KEEPALIVE \
                 -h $MQTT_HOST -p $MQTT_PORT -q $MQTT_QOS \
-                -i "${MQTT_CLIENT_ID}_pub" \
                 -u $MQTT_USER -P "$MQTT_PASSWD" \
+                $MQTT_CLIENT_ID \
                 -t "$TOPIC" -m "$MSG"
 else
   mosquitto_pub --cafile "$TLS/ca/ca.crt" \
@@ -26,8 +28,8 @@ else
                 -d \
                 -k $MQTT_KEEPALIVE \
                 -h $MQTT_HOST -p $MQTT_PORT -q $MQTT_QOS \
-                -i "${MQTT_CLIENT_ID}_pub" \
                 -u $MQTT_USER -P "$MQTT_PASSWD" \
+                $MQTT_CLIENT_ID \
                 -t "$TOPIC" -m "$MSG"
 
 fi

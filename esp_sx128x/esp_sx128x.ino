@@ -3,8 +3,6 @@
  */
 
 //-----------------------------------------------------------------------------
-#include <WiFi.h>
-//-----------------------------------------------------------------------------
 #include "config.h"
 #include "global.h"
 #include "cli.h"
@@ -15,6 +13,7 @@
 #include "sx128x.h"
 #include "eeprom.h"
 #include "tfs.h"
+#include "wifi.h"
 #include "mqtt.h"
 //-----------------------------------------------------------------------------
 #ifdef ARDUINO_USBCDC
@@ -119,30 +118,12 @@ void setup() {
   // connect to Wi-Fi Access Point
   if (Opt.wifi_ssid[0] != '\0')
   {
-    unsigned cnt = 0;
-    unsigned timeout = WIFI_TIMEOUT * 2;
-    Serial.print("Wi-Fi connecting to ");
-    Serial.println(Opt.wifi_ssid);
-
-    WiFi.begin(Opt.wifi_ssid, Opt.wifi_passwd);
-
-    while (WiFi.status() != WL_CONNECTED) {
-      delay(500);
-      Serial.print(".");
-      cnt++;
-      if (timeout && cnt > timeout) break;
-    }
-    Serial.println("");
-
-    if (WiFi.status() == WL_CONNECTED) {
-      Serial.print("Wi-Fi connected in ");
-      Serial.print((cnt + 1) / 2);
-      Serial.println(" seconds");
-      Serial.print("IP address: ");
-      Serial.println(WiFi.localIP());
-
-      WiFi.setAutoReconnect(true);
-    }
+    wifi_connect(Opt.wifi_ssid, Opt.wifi_passwd, true); // auto_reconnect=true
+  
+    // connect to MQTT broker
+    if (Opt.mqtt_host[0] != '\0')
+      mqtt_connect(Opt.mqtt_host, Opt.mqtt_port,
+                   Opt.mqtt_user, Opt.mqtt_key);
   }
 
   // setup ticker
@@ -239,6 +220,11 @@ void loop() {
     Fsm.start();
     mrl_refresh(&Mrl);
   }
+
+  // check Wi-Fi conection
+  //if (Opt.wifi_ssid[0] != '\0')
+  //  if (!wifi_connected())
+  //    wifi_reconnect();
 }
 //-----------------------------------------------------------------------------
 #if 0

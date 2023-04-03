@@ -17,6 +17,8 @@
 #include "reset.h"
 #include "sx128x.h"
 #include "sx128x_hw_arduino.h"
+#include "wifi.h"
+#include "mqtt.h"
 //-----------------------------------------------------------------------------
 #ifdef ARDUINO_USBCDC
 #  include "usbcdc.h"
@@ -516,34 +518,6 @@ void cli_def(int argc, char* const argv[], const cli_cmd_t *cmd)
   if (retv != SX128X_ERR_NONE) return;
 
   print_str("set to default all options\r\n");
-}
-//=============================================================================
-void cli_wifi_ssid(int argc, char* const argv[], const cli_cmd_t *cmd)
-{ // wifi ssid [SSID]
-  if (argc > 0) strncpy(Opt.wifi_ssid, argv[0], OPT_WIFI - 1);
-  print_sval("SSID=", Opt.wifi_ssid);
-}
-//-----------------------------------------------------------------------------
-void cli_wifi_passwd(int argc, char* const argv[], const cli_cmd_t *cmd)
-{ // wifi passwd [PASSWD]
-  if (argc > 0) strncpy(Opt.wifi_passwd, argv[0], OPT_WIFI - 1);
-  print_sval("passwd=", Opt.wifi_passwd);
-}
-//-----------------------------------------------------------------------------
-void cli_wifi_disable(int argc, char* const argv[], const cli_cmd_t *cmd)
-{ // wifi disable
-  strncpy(Opt.wifi_ssid,   "", OPT_WIFI - 1);
-  //strncpy(Opt.wifi_passwd, "", OPT_WIFI - 1);
-}
-//-----------------------------------------------------------------------------
-void cli_wifi_status(int argc, char* const argv[], const cli_cmd_t *cmd)
-{ // wifi status
-  Serial.print("Wi-Fi is ");
-  Serial.println(WiFi.isConnected() ? "connected" : "disconnected");
-  Serial.print("AutoReconnect is ");
-  Serial.println(WiFi.getAutoReconnect() ? "true" : "false");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
 }
 //=============================================================================
 void cli_hw_reset(int argc, char* const argv[], const cli_cmd_t *cmd)
@@ -2135,6 +2109,44 @@ void cli_autostart(int argc, char* const argv[], const cli_cmd_t *cmd)
   print_str("sec\r\n");
 }
 //=============================================================================
+void cli_wifi_ssid(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // wifi ssid [SSID]
+  if (argc > 0) strncpy(Opt.wifi_ssid, argv[0], OPT_WIFI - 1);
+  print_sval("SSID=", Opt.wifi_ssid);
+}
+//-----------------------------------------------------------------------------
+void cli_wifi_passwd(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // wifi passwd [PASSWD]
+  if (argc > 0) strncpy(Opt.wifi_passwd, argv[0], OPT_WIFI - 1);
+  print_sval("passwd=", Opt.wifi_passwd);
+}
+//-----------------------------------------------------------------------------
+void cli_wifi_disable(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // wifi disable
+  strncpy(Opt.wifi_ssid,   "", OPT_WIFI - 1);
+  //strncpy(Opt.wifi_passwd, "", OPT_WIFI - 1);
+}
+//-----------------------------------------------------------------------------
+void cli_wifi_connect(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // wifo connect
+  wifi_connect(Opt.wifi_ssid, Opt.wifi_passwd, true); // auto_reconnect=true
+}
+//-----------------------------------------------------------------------------
+void cli_wifi_disconnect(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // wifi disconnect
+  wifi_disconnect();
+}
+//-----------------------------------------------------------------------------
+void cli_wifi_status(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // wifi status
+  Serial.print("Wi-Fi is ");
+  Serial.println(WiFi.isConnected() ? "connected" : "disconnected");
+  Serial.print("AutoReconnect is ");
+  Serial.println(WiFi.getAutoReconnect() ? "true" : "false");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+//=============================================================================
 void cli_mqtt_server(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // mqtt server [HOST PORT ID]
   if (argc > 0) strncpy(Opt.mqtt_host, argv[0], OPT_MQTT - 1);
@@ -2153,6 +2165,47 @@ void cli_mqtt_client(int argc, char* const argv[], const cli_cmd_t *cmd)
   
   print_sval("MQTT user: ", Opt.mqtt_user);
   print_sval("MQTT key: ",  Opt.mqtt_key);
+}
+//-----------------------------------------------------------------------------
+void cli_mqtt_connect(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // mqtt connect
+  mqtt_connect(Opt.mqtt_host, Opt.mqtt_port,
+               Opt.mqtt_user, Opt.mqtt_key);
+}
+//-----------------------------------------------------------------------------
+void cli_mqtt_disconnect(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // mqtt disconnect
+  mqtt_disconnect();
+}
+//-----------------------------------------------------------------------------
+void cli_mqtt_status(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // mqtt status
+  print_sval("MQTT ", mqtt_connected() ? "connected" : "disconnected");
+}
+//-----------------------------------------------------------------------------
+void cli_mqtt_ping(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // mqtt ping [N]
+  int n = 1;
+  bool ret = false;
+  if (argc > 0) n = mrl_str2int(argv[0], 1, 10);
+  if (Mqtt != (Adafruit_MQTT_Client*) NULL)
+    ret = Mqtt->ping(n);
+  print_sval("MQTT ping ", ret ? "SUCCESS" : "FAIL");
+}
+//-----------------------------------------------------------------------------
+void cli_mqtt_pub(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // mqtt pub [Topic MSG QoS]
+  if (argc >= 2)
+  {
+    bool ret = false;
+    uint8_t qos = 0; // QoS by default
+    const char *topic = argv[0];
+    const char *msg   = argv[1];
+    if (argc >= 3) qos = mrl_str2int(argv[2], qos, 0);
+    if (Mqtt != (Adafruit_MQTT_Client*) NULL)
+      ret = Mqtt->publish(topic, msg, qos, true); // retain=true
+    print_sval("MQTT publish ", ret ? "SUCCESS" : "FAIL");
+  }
 }
 //=============================================================================
 #ifdef MRL_USE_CTRL_C

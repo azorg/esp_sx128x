@@ -6,7 +6,9 @@ cd "$WDIR"
 
 . ./mqtt_conf.sh
 
-TOPIC="sample/TLS"
+TOPIC="topic"
+
+[ "$MQTT_CLIENT_ID" ] && MQTT_CLIENT_ID="-i ${MQTT_CLIENT_ID}_sub"
 
 if [ "$MQTT_INSECURE" = "yes" ]
 then
@@ -15,8 +17,8 @@ then
                 -d -v \
                 -k $MQTT_KEEPALIVE \
                 -h $MQTT_HOST -p $MQTT_PORT -q $MQTT_QOS \
-                -i "${MQTT_CLIENT_ID}_sub" \
                 -u $MQTT_USER -P "$MQTT_PASSWD" \
+                $MQTT_CLIENT_ID \
                 -t "$TOPIC" 
 else
   mosquitto_sub --cafile "$TLS/ca/ca.crt" \
@@ -25,8 +27,8 @@ else
                 -d -v \
                 -k $MQTT_KEEPALIVE \
                 -h $MQTT_HOST -p $MQTT_PORT -q $MQTT_QOS \
-                -i "${MQTT_CLIENT_ID}_sub" \
                 -u $MQTT_USER -P "$MQTT_PASSWD" \
+                $MQTT_CLIENT_ID \
                 -t "$TOPIC" 
 fi
 

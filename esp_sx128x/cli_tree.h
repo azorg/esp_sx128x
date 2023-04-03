@@ -45,12 +45,6 @@ cli_cmd_t const cli_tree[] = {
 
   _F( 37,  -1, cli_def,             "def",        "",                  "set to default all options (opt_t)")
   
-  _F( 40,  -1, cli_help,            "wifi",       "",                  "Wi-Fi options")
-  _F( 41,  40, cli_wifi_ssid,       "ssid",       " [SSID]",           "get/set Wi-Fi SSID")
-  _F( 42,  40, cli_wifi_passwd,     "passwd",     " [passwd]",         "get/set Wi-Fi password")
-  _F( 43,  40, cli_wifi_disable,    "disable",    "",                  "disable Wi-Fi (reset SSID)")
-  _F( 44,  40, cli_wifi_status,     "status",     "",                  "print Wi-Fi status")
-  
   _F( 50,  -1, cli_help,            "hw",         "",                  "hardware direct/status commands")
   _F( 51,  50, cli_hw_reset,        "reset",      " [t1 t2]",          "hardware reset SX128x by NRST")
   _F( 52,  50, cli_hw_rxen,         "rxen",       " [0|1]",            "1-set/0-reset RXEN line (on/off LNA)")
@@ -162,9 +156,24 @@ cli_cmd_t const cli_tree[] = {
 
   _F(205,  -1, cli_autostart,       "autostart",  " [1|0 delay]",      "get/set autostart on reboot flag and delay [sec]")
 
+  _F(240,  -1, cli_help,            "wifi",       "",                  "Wi-Fi options")
+  _F(241, 240, cli_wifi_ssid,       "ssid",       " [SSID]",           "get/set Wi-Fi SSID")
+  _F(242, 240, cli_wifi_passwd,     "passwd",     " [passwd]",         "get/set Wi-Fi password")
+  _F(243, 240, cli_wifi_disable,    "disable",    "",                  "disable Wi-Fi (reset SSID)")
+  _F(244, 240, cli_wifi_connect,    "connect",    "",                  "Wi-Fi connect")
+  _F(245, 240, cli_wifi_disconnect, "disconnect", "",                  "Wi-Fi disconnect")
+  _F(246, 240, cli_wifi_status,     "status",     "",                  "print Wi-Fi status")
+  
   _F(250,  -1, cli_help,            "mqtt",       "",                  "MQTT options")
   _F(251, 250, cli_mqtt_server,     "server",     " [HOST PORT ID]",   "get/set MQTT server options")
   _F(252, 250, cli_mqtt_client,     "client",     " [USER KEY]",       "get/set MQTT client options")
+  _F(253, 250, cli_mqtt_connect,    "connect",    "",                  "connect to MQTT broker")
+  _F(254, 250, cli_mqtt_disconnect, "disconnect", "",                  "disconnect from MQTT broker")
+  _F(255, 250, cli_mqtt_status,     "status",     "",                  "print MQTT connection status")
+  _F(256, 250, cli_mqtt_ping,       "ping",       " [N]",              "ping MQTT broker")
+  _F(257, 250, cli_mqtt_pub,        "pub",        " [Topic MSG QoS]",  "publish message")
+
+
 
   _F( -1,  -1, NULL,                NULL,         NULL,                NULL)
 };

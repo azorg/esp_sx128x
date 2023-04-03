@@ -1,31 +1,30 @@
 /*
- * MQTT wrappers
- * File: "mqtt.h"
+ * Wi-Fi wrappers
+ * File: "wifi.h"
  */
 
 #pragma once
-#ifndef MQTT_H
-#define NQTT_H
+#ifndef WIFI_H
+#define WIFI_H
+//-----------------------------------------------------------------------------
+#include <WiFi.h>
 //-----------------------------------------------------------------------------
 #ifdef __cplusplus
-#include <Adafruit_MQTT_Client.h>
-extern Adafruit_MQTT_Client *Mqtt; // global variable (may be NULL)
-//-----------------------------------------------------------------------------
 extern "C"
 {
 #endif // __cplusplus
 //-----------------------------------------------------------------------------
-bool mqtt_connect(const char *host, uint16_t port,
-                  const char *user, const char *key);
-bool mqtt_connected();
-void mqtt_disconnect();
+bool wifi_connect(const char *ssid, const char *passwd, bool auto_reconnect);
+bool wifi_reconnect();
+bool wifi_connected();
+void wifi_disconnect();
 //-----------------------------------------------------------------------------
 #ifdef __cplusplus
 }
 #endif // __cplusplus
 //-----------------------------------------------------------------------------
-#endif // MQTT_H
+#endif // WIFI_H
 
-/*** end of "mqtt.h" file ***/
+/*** end of "wifi.h" file ***/
 
 

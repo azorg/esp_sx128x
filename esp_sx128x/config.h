@@ -72,7 +72,7 @@
 #  define SX128X_MISO_PIN 14 // GPIO14
 // Note: TXEN/RXEN don't use with E28-2G4M12S
 #  define SX128X_SPI_ALTERNATE_PINS
-#  define SX128X_SPI_CLOCK 6000000UL // 6 MHz
+#  define SX128X_SPI_CLOCK 1000000UL // 1 MHz
 #else // ESP32, ESP8266
 #  define SX128X_NRST_PIN  4 // GPIO4
 #  define SX128X_NSS_PIN   5 // GPIO5 VSPI_SS
@@ -121,6 +121,7 @@
 #define OPT_AUTOSTART_DELAY 3  // auto start delay [sec]
 //-----------------------------------------------------------------------------
 #define WIFI_TIMEOUT 15 // Wi-Fi connetion timeout [seconds]
+#define MQTT_RETRIES 3  // MQTT connetion retries times
 //-----------------------------------------------------------------------------
 #endif // CONFIG_H
 

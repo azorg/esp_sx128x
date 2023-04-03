@@ -2,8 +2,12 @@ ESP32 + SX128x test application
 ===============================
 
 ## You need hardware
-1. ESP32 module (like DOIT ESP32 KIT v1)
+1. ESP32 module (like "DOIT ESP32 KIT v1" or "Wemos S2 Mini")
 2. SX128x module (like E28-2G4M27S or E28-2G4M12S)
+
+## You need software
+* Arduino IDE
+* MQTT broker with TLS/SSL support (mosquitto recomented)
 
 ## How to install
 Look `INSTALL.md` file
@@ -39,6 +43,9 @@ Note:
  1. XSL - on left side; XSR - on right side
  2. ESP32 connected to PC by USB type-C or MicroUSB cable
  3. `TX_EN` and `RX_EN` only for 27dBm version E28 nodule (E28-2G4M27S)
+
+## Connect LoRa E28 (SX128x) module to "Wemos S2 Mini" board
+Look `doc/s2mini+e28-2g4m12s.pdf`
 
 ## Run `minicom`
 ```bash
