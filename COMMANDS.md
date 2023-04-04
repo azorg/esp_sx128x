@@ -79,6 +79,7 @@ buffer - TX/RX buffer commands
 buffer base TxAd RxAd - set TX/RX buffer base addreses
 buffer read Ad [Num] - read from RX/TX buffer
 buffer write Ad [b0 b1..] - write data to RX/TX buffer
+tx_timeout [ms] - get/set TX timeout [ms]
 fixed [0|1] - get/set fixed/variable size of send packet
 data [b0 b1..] - get/set TX data bytes
 data fill [size value] - fill TX data bytes
@@ -93,5 +94,22 @@ sweep [Fmin Fmax S] - get/set sweep generator pars (Fmin/Fmax - kHz, S - kHz/sec
 start - start FSM loop (Ctrl+S)
 stop - stop FSM loop (Ctrl+C)
 autostart [1|0 delay] - get/set autostart on reboot flag and delay [sec]
+wifi - Wi-Fi options
+wifi ssid [SSID] - get/set Wi-Fi SSID
+wifi passwd [passwd] - get/set Wi-Fi password
+wifi disable - disable Wi-Fi (reset SSID)
+wifi connect - Wi-Fi connect
+wifi disconnect - Wi-Fi disconnect
+wifi status - print Wi-Fi status
+mqtt - MQTT options
+mqtt server [HOST PORT ID] - get/set MQTT server options
+mqtt client [USER KEY] - get/set MQTT client options
+mqtt connect - connect to MQTT broker
+mqtt disconnect - disconnect from MQTT broker
+mqtt status - print MQTT connection status
+mqtt state - print MQTT state (integer)
+mqtt pub [Topic MSG RTN] - publish message
+mqtt sub [Topic QoS] - subscribe topic
+mqtt unsub [Topic] - unsubscribe topic
 ```
 
