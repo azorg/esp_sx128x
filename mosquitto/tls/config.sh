@@ -23,6 +23,6 @@ CLIENT_CN="mqtt.noflood.ru"
 CLIENT_O="Noflood MQTT Client"
 CLIENT_OU="MQTT noflood.ru client"
 CLIENT_C="RU"
-CLIENT_SAN_DNS=""
+#CLIENT_SAN_DNS="client.net"
 
 

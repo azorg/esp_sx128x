@@ -1,14 +1,14 @@
 #!/bin/sh
 
 echo "*** CA:"
-openssl rsa -text -in ca/ca.key
+openssl rsa -in ca/ca.key -noout -text
 
 echo
 echo "*** Server:"
-openssl rsa -text -in server/server.key
+openssl rsa -in server/server.key -noout -text
 
 echo
 echo "*** Client:"
-openssl rsa -text -in client/client.key
+openssl rsa -in client/client.key -noout -text
 
 

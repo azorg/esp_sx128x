@@ -7,3 +7,7 @@ build
 *.cfg
 #*.json
 
+mosquitto/tls/ca/ca.key
+mosquitto/tls/server/*
+mosquitto/tls/client/*
+

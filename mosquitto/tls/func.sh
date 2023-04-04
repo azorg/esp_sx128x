@@ -2,9 +2,10 @@
 # There's no (simple) way to pass subjAltName on the CLI so
 # create a temp *.cnf file and get it to openssl
 # prepare Subject AltNames (SAN) extension config and options
-# return: tmp.cnf openssl_opt
+# return: tmp.cnf altnames.txt
 san_cnf_opt() {
-  CNF=`mktemp || echo /tmp/xxx_temp_openssl.cnf`
+  CNF=`mktemp || echo /tmp/xxx_temp_openssl.cnf` # openssl Config
+  EXF=`mktemp || echo /tmp/xxx_temp_openssl.exf` # AltNames list
   LIST=''
   for FQDN in $*
   do
@@ -14,7 +15,9 @@ san_cnf_opt() {
 
   if [ "$LIST" ]
   then
-    cat  "/etc/ssl/openssl.cnf" >  "$CNF"
+    echo "subjectAltName=$LIST" > "$EXF"
+
+    cat  "/etc/ssl/openssl.cnf" > "$CNF"
 
     # 1. subjAltName
     echo "[SAN]"                >> "$CNF"
@@ -33,10 +36,13 @@ san_cnf_opt() {
       CNT=$(($CNT + 1))
     done
 
+    chmod a+r "$EXF" # for openssl access
     chmod a+r "$CNF" # for openssl access
-    echo "$CNF" "-reqexts SAN -reqexts req_ext -config $CNF"
+
+    echo "$EXF" "$CNF"
   else
     rm "$CNF"
+    rm "$EXF"
   fi
 }
 
