@@ -14,3 +14,5 @@ MQTT_USER="mqtt"
 MQTT_PASSWD="12345678" # secret password of user
 MQTT_CLIENT_ID=""
 
+#MQTT_RETAIN="yes"
+

@@ -2146,11 +2146,12 @@ void cli_mqtt_server(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // mqtt server [HOST PORT ID]
   if (argc > 0) strncpy(Opt.mqtt_host, argv[0], OPT_MQTT - 1);
   if (argc > 1) Opt.mqtt_port = mrl_str2int(argv[1], 8883, 10);
-  if (argc > 2) Opt.mqtt_id   = mrl_str2int(argv[2], 1, 0);
+  if (argc > 2) strncpy(Opt.mqtt_id, argv[2], OPT_MQTT - 1);
+  else if (argc == 2) strncpy(Opt.mqtt_id, "", OPT_MQTT - 1);
   
   print_sval("MQTT host: ",      Opt.mqtt_host);
   print_uval("MQTT port: ",      Opt.mqtt_port);
-  print_uval("MQTT client ID: ", Opt.mqtt_id);
+  print_sval("MQTT client ID: ", Opt.mqtt_id);
 }
 //-----------------------------------------------------------------------------
 void cli_mqtt_client(int argc, char* const argv[], const cli_cmd_t *cmd)
@@ -2164,7 +2165,7 @@ void cli_mqtt_client(int argc, char* const argv[], const cli_cmd_t *cmd)
 //-----------------------------------------------------------------------------
 void cli_mqtt_connect(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // mqtt connect
-  mqtt_connect(Opt.mqtt_host, Opt.mqtt_port,
+  mqtt_connect(Opt.mqtt_host, Opt.mqtt_port, Opt.mqtt_id,
                Opt.mqtt_user, Opt.mqtt_key);
 }
 //-----------------------------------------------------------------------------
@@ -2178,29 +2179,43 @@ void cli_mqtt_status(int argc, char* const argv[], const cli_cmd_t *cmd)
   print_sval("MQTT ", mqtt_connected() ? "connected" : "disconnected");
 }
 //-----------------------------------------------------------------------------
-void cli_mqtt_ping(int argc, char* const argv[], const cli_cmd_t *cmd)
-{ // mqtt ping [N]
-  int n = 1;
-  bool ret = false;
-  if (argc > 0) n = mrl_str2int(argv[0], 1, 10);
-  if (Mqtt != (Adafruit_MQTT_Client*) NULL)
-    ret = Mqtt->ping(n);
-  print_sval("MQTT ping ", ret ? "SUCCESS" : "FAIL");
+void cli_mqtt_state(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // mqtt state
+  Serial.print("MQTT state=");
+  Serial.print(Mqtt.state());
+  Serial.print(" [");
+  Serial.print(mqtt_state(Mqtt.state()));
+  Serial.println(']');
 }
 //-----------------------------------------------------------------------------
 void cli_mqtt_pub(int argc, char* const argv[], const cli_cmd_t *cmd)
-{ // mqtt pub [Topic MSG QoS]
-  if (argc >= 2)
-  {
-    bool ret = false;
+{ // mqtt pub [Topic MSG RTN]
+  const char *topic = "";
+  const char *msg   = "";
+  boolean retained  = false;
+  if (argc > 0) topic = argv[0];
+  if (argc > 1) msg   = argv[1];
+  if (argc > 2) retained = !!mrl_str2int(argv[2], 0, 0);
+  if (!Mqtt.publish(topic, msg, retained))
+     print_str("MQTT publish FAIL\r\n");
+}
+//-----------------------------------------------------------------------------
+void cli_mqtt_sub(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // mqtt sub [Topic QoS]
+  if (argc > 0) {
     uint8_t qos = 0; // QoS by default
     const char *topic = argv[0];
-    const char *msg   = argv[1];
-    if (argc >= 3) qos = mrl_str2int(argv[2], qos, 0);
-    if (Mqtt != (Adafruit_MQTT_Client*) NULL)
-      ret = Mqtt->publish(topic, msg, qos, true); // retain=true
-    print_sval("MQTT publish ", ret ? "SUCCESS" : "FAIL");
+    if (argc > 1) qos = mrl_str2int(argv[1], qos, 0);
+    if (!Mqtt.subscribe(topic, qos))
+      print_str("MQTT subscribe FAIL\r\n");
   }
+}
+//-----------------------------------------------------------------------------
+void cli_mqtt_unsub(int argc, char* const argv[], const cli_cmd_t *cmd)
+{ // mqtt unsub [Topic]
+  if (argc > 0)
+    if (!Mqtt.unsubscribe(argv[0]))
+      print_str("MQTT unsubscribe FAIL\r\n");
 }
 //=============================================================================
 #ifdef MRL_USE_CTRL_C
@@ -2297,12 +2312,14 @@ void cli_loop()
   else if (key == CLI_KEYCODE_CTRL_Q) // Ctrl+Q pressed
   {
     print_str("\r\n^Q\r\n");
+    print_str("reset\r\n");
     Reset();
     //mrl_refresh(&Mrl);
   }
   else if (key == CLI_KEYCODE_CTRL_W) // Ctrl+W pressed
   {
     print_str("\r\n^W\r\n");
+    print_str("eeprom write\r\n");
     cli_eeprom_write(0, NULL, NULL);
     mrl_refresh(&Mrl);
   }

@@ -20,10 +20,10 @@ void opt_default(opt_t *opt)
   strcpy(opt->wifi_passwd, "WiFi_passwd");
   
   strcpy(opt->mqtt_host, "mqtt.server");
+  strcpy(opt->mqtt_id,   "");
   strcpy(opt->mqtt_user, "mqtt_user");
   strcpy(opt->mqtt_key,  "1234");
   opt->mqtt_port = 8883;
-  opt->mqtt_id   = 1;
 
   opt->rxen = opt->txen = 0; // RXEN and TXEN by deafault OFF
 

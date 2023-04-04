@@ -49,9 +49,9 @@ bool wifi_reconnect()
     Serial.print("Wi-Fi connected in ");
     Serial.print((cnt + 1) / 2);
     Serial.println(" second(s)");
-    Serial.print("IP address: ");
+    Serial.print("IP: ");
     Serial.println(WiFi.localIP());
-    Serial.print("signal strength (RSSI): ");
+    Serial.print("RSSI: ");
     Serial.print(WiFi.RSSI());
     Serial.println(" dBm");
     return true;
@@ -93,12 +93,12 @@ void wifi_status_print()
 
     // print your board's IP address
     IPAddress ip = WiFi.localIP();
-    Serial.print("IP address: ");
+    Serial.print("IP: ");
     Serial.println(ip);
 
     // print the received signal strength:
     long rssi = WiFi.RSSI();
-    Serial.print("signal strength (RSSI): ");
+    Serial.print("RSSI: ");
     Serial.print(rssi);
     Serial.println(" dBm");
   }

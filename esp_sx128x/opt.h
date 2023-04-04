@@ -45,7 +45,7 @@ typedef struct {
 
   char mqtt_host[OPT_MQTT];     // MQTT broker
   uint16_t mqtt_port;           // MQTT TCP/SSL port (8883 by default) 
-  uint32_t mqtt_id;             // MQTT client ID
+  char mqtt_id[OPT_MQTT];       // MQTT client ID
   char mqtt_user[OPT_MQTT];     // MQTT user name
   char mqtt_key[OPT_MQTT];      // MQTT user key/password
 

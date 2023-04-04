@@ -170,10 +170,10 @@ cli_cmd_t const cli_tree[] = {
   _F(253, 250, cli_mqtt_connect,    "connect",    "",                  "connect to MQTT broker")
   _F(254, 250, cli_mqtt_disconnect, "disconnect", "",                  "disconnect from MQTT broker")
   _F(255, 250, cli_mqtt_status,     "status",     "",                  "print MQTT connection status")
-  _F(256, 250, cli_mqtt_ping,       "ping",       " [N]",              "ping MQTT broker")
-  _F(257, 250, cli_mqtt_pub,        "pub",        " [Topic MSG QoS]",  "publish message")
-
-
+  _F(256, 250, cli_mqtt_state,      "state",      "",                  "print MQTT state (integer)")
+  _F(257, 250, cli_mqtt_pub,        "pub",        " [Topic MSG RTN]",  "publish message")
+  _F(258, 250, cli_mqtt_sub,        "sub",        " [Topic QoS]",      "subscribe topic")
+  _F(259, 250, cli_mqtt_unsub,      "unsub",      " [Topic]",          "unsubscribe topic")
 
   _F( -1,  -1, NULL,                NULL,         NULL,                NULL)
 };

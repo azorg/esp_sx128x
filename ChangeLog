@@ -1,6 +1,8 @@
 2023.04.03:
  + add mosquitto samples and TLS scripts
  + start test Adafruit MQTT library under ESP32 (debug)
+ * switch from Adafruit MQTT Client to classic MQTT PubSubClient
+ * update tls scripts
 
 2023.04.02:
  * start work under MQTT client

@@ -35,8 +35,7 @@ void ticker_callback() {
     Mqtt_reconnect = false;
     if (wifi_connected() && !mqtt_connected()) {
       mrl_clear(&Mrl);
-      mqtt_connect(Opt.mqtt_host, Opt.mqtt_port,
-                   Opt.mqtt_user, Opt.mqtt_key);
+      mqtt_reconnect(Opt.mqtt_id, Opt.mqtt_user, Opt.mqtt_key);
       mrl_refresh(&Mrl);
     }
   }
@@ -45,6 +44,21 @@ void ticker_callback() {
   //...
 
   Ticks++;
+}
+//-----------------------------------------------------------------------------
+// MQTT callback
+void mqtt_callback(char *topic, byte *payload, unsigned int length)
+{
+  mrl_clear(&Mrl);
+  // FIXME: example code
+  Serial.print("Message arrived [");
+  Serial.print(topic);
+  Serial.print("] ");
+  for (int i = 0; i < length; i ++) {
+    Serial.print((char) payload[i]);
+  }
+  Serial.println();
+  mrl_refresh(&Mrl);
 }
 //-----------------------------------------------------------------------------
 void setup() {
@@ -136,10 +150,11 @@ void setup() {
     wifi_connect(Opt.wifi_ssid, Opt.wifi_passwd, true); // auto_reconnect=true
   
     // connect to MQTT broker
-    if (Opt.mqtt_host[0] != '\0')
-      mqtt_connect(Opt.mqtt_host, Opt.mqtt_port,
+    if (wifi_connected() && Opt.mqtt_host[0] != '\0')
+      mqtt_connect(Opt.mqtt_host, Opt.mqtt_port, Opt.mqtt_id,
                    Opt.mqtt_user, Opt.mqtt_key);
   }
+  Mqtt.setCallback(mqtt_callback);
 
   // setup ticker
   Ticker.begin(ticker_callback, TICKER_MS, true, millis());
@@ -240,6 +255,9 @@ void loop() {
   //if (Opt.wifi_ssid[0] != '\0')
   //  if (!wifi_connected())
   //    wifi_reconnect();
+
+  // MQTT PubSubClient loop
+  Mqtt.loop();
 }
 //-----------------------------------------------------------------------------
 #if 0

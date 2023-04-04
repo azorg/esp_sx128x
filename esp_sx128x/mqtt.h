@@ -8,15 +8,17 @@
 #define NQTT_H
 //-----------------------------------------------------------------------------
 #ifdef __cplusplus
-#include <Adafruit_MQTT_Client.h>
-extern Adafruit_MQTT_Client *Mqtt; // global variable (may be NULL)
+#include <PubSubClient.h>
+extern PubSubClient Mqtt; // global variable
 //-----------------------------------------------------------------------------
 extern "C"
 {
 #endif // __cplusplus
 //-----------------------------------------------------------------------------
+const char *mqtt_state(int state); // return state as string
 bool mqtt_connect(const char *host, uint16_t port,
-                  const char *user, const char *key);
+                  const char *id, const char *user, const char *key);
+bool mqtt_reconnect(const char *id, const char *user, const char *key);
 bool mqtt_connected();
 void mqtt_disconnect();
 //-----------------------------------------------------------------------------
