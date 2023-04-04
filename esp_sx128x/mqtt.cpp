@@ -56,10 +56,7 @@ bool mqtt_connect(const char *host, uint16_t port,
   int8_t ret;
   while (ret = Mqtt->connect() != 0) { // connect() will return 0 for connected
     Serial.println(Mqtt->connectErrorString(ret));
-    Serial.println("Retrying MQTT connection in 5 seconds...");
-    Mqtt->disconnect();
-    delay(5000); // wait 5 seconds
-    if (--retries == 0) {
+    if (retries-- == 0) {
 #ifdef MQTT_EXTREME_EMBEDED_PROGRAMMING
       delete Mqtt;
       Mqtt = (Adafruit_MQTT_Client*) NULL;
@@ -67,6 +64,9 @@ bool mqtt_connect(const char *host, uint16_t port,
       Serial.println("MQTT connection FAIL");
       return false;
     }
+    Serial.println("Retrying MQTT connection in 3 seconds...");
+    Mqtt->disconnect();
+    delay(3000); // wait 3 seconds
   }
 
   Serial.println("MQTT connection SUCCESS");

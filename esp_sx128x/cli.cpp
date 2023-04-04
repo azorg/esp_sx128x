@@ -2139,12 +2139,7 @@ void cli_wifi_disconnect(int argc, char* const argv[], const cli_cmd_t *cmd)
 //-----------------------------------------------------------------------------
 void cli_wifi_status(int argc, char* const argv[], const cli_cmd_t *cmd)
 { // wifi status
-  Serial.print("Wi-Fi is ");
-  Serial.println(WiFi.isConnected() ? "connected" : "disconnected");
-  Serial.print("AutoReconnect is ");
-  Serial.println(WiFi.getAutoReconnect() ? "true" : "false");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+  wifi_status_print();
 }
 //=============================================================================
 void cli_mqtt_server(int argc, char* const argv[], const cli_cmd_t *cmd)

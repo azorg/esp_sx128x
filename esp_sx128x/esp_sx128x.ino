@@ -20,12 +20,27 @@
 #  include "usbcdc.h"
 #endif
 //-----------------------------------------------------------------------------
+bool Mqtt_reconnect = false;
+//-----------------------------------------------------------------------------
 void ticker_callback() {
 
   if ((Ticks % TICKER_HZ) == 0 && Ticks >= TICKER_HZ) {
     Seconds++;
+  
+    // check MQTT connection every MQTT_CHECK_PERIOD seconds
+    if (Seconds % MQTT_CHECK_PERIOD == 0) Mqtt_reconnect = true;
   }
 
+  if (Mqtt_reconnect) {
+    Mqtt_reconnect = false;
+    if (wifi_connected() && !mqtt_connected()) {
+      mrl_clear(&Mrl);
+      mqtt_connect(Opt.mqtt_host, Opt.mqtt_port,
+                   Opt.mqtt_user, Opt.mqtt_key);
+      mrl_refresh(&Mrl);
+    }
+  }
+  
   // TODO: reset WDT every N seconds
   //...
 

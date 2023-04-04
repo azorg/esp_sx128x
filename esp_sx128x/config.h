@@ -121,7 +121,8 @@
 #define OPT_AUTOSTART_DELAY 3  // auto start delay [sec]
 //-----------------------------------------------------------------------------
 #define WIFI_TIMEOUT 15 // Wi-Fi connetion timeout [seconds]
-#define MQTT_RETRIES 3  // MQTT connetion retries times
+#define MQTT_RETRIES 0  // MQTT connetion retries times (0 - no retries)
+#define MQTT_CHECK_PERIOD 60 // MQTT check connection period [seconds] 
 //-----------------------------------------------------------------------------
 #endif // CONFIG_H
 

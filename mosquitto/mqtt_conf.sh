@@ -2,9 +2,10 @@
 TLS="./tls"
 
 # MQTT server
-MQTT_HOST="mqtt.noflood.ru"
+#MQTT_HOST="mqtt.noflood.ru" # from Internet
+MQTT_HOST="192.168.0.250" # from local network
 MQTT_PORT="8883"
-MQTT_QOS="2"
+MQTT_QOS="0"
 
 MQTT_KEEPALIVE="60" # by default 60 sec
 

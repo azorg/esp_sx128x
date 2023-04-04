@@ -7,7 +7,7 @@ cd "$WDIR"
 . ./mqtt_conf.sh
 
 TOPIC="temp"
-MSG="99.9"
+MSG="19.9"
 
 [ "$MQTT_CLIENT_ID" ] && MQTT_CLIENT_ID="-i ${MQTT_CLIENT_ID}_pub"
 

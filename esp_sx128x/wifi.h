@@ -18,6 +18,8 @@ bool wifi_connect(const char *ssid, const char *passwd, bool auto_reconnect);
 bool wifi_reconnect();
 bool wifi_connected();
 void wifi_disconnect();
+long wifi_rssi(); // dB
+void wifi_status_print();
 //-----------------------------------------------------------------------------
 #ifdef __cplusplus
 }

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 sudo systemctl stop   mosquitto
 sudo systemctl start  mosquitto

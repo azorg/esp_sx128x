@@ -29,7 +29,7 @@ bool wifi_reconnect()
   unsigned cnt = 0;
   unsigned timeout = WIFI_TIMEOUT * 2;
 
-  Serial.print("Trying Wi-Fi connection to ESSID:\"");
+  Serial.print("Trying Wi-Fi connection to ESSID: \"");
   Serial.print(wifi_ssid);
   Serial.print("\" in ");
   Serial.print(WIFI_TIMEOUT);
@@ -51,6 +51,9 @@ bool wifi_reconnect()
     Serial.println(" second(s)");
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
+    Serial.print("signal strength (RSSI): ");
+    Serial.print(WiFi.RSSI());
+    Serial.println(" dBm");
     return true;
   } else {
     Serial.println("Wi-Fi connection timeout");
@@ -66,6 +69,39 @@ bool wifi_connected()
 void wifi_disconnect()
 {
   WiFi.disconnect(true);
+}
+//-----------------------------------------------------------------------------
+long wifi_rssi()
+{
+  return WiFi.RSSI();
+}
+//-----------------------------------------------------------------------------
+void wifi_status_print()
+{
+  bool connected = WiFi.isConnected();
+  Serial.print("Wi-Fi is ");
+  Serial.println(connected ? "connected" : "disconnected");
+
+  if (connected) {
+    Serial.print("AutoReconnect is ");
+    Serial.println(WiFi.getAutoReconnect() ? "true" : "false");
+
+    // print the SSID of the network you're attached to:
+    Serial.print("SSID: \"");
+    Serial.print(WiFi.SSID());
+    Serial.println("\"");
+
+    // print your board's IP address
+    IPAddress ip = WiFi.localIP();
+    Serial.print("IP address: ");
+    Serial.println(ip);
+
+    // print the received signal strength:
+    long rssi = WiFi.RSSI();
+    Serial.print("signal strength (RSSI): ");
+    Serial.print(rssi);
+    Serial.println(" dBm");
+  }
 }
 //-----------------------------------------------------------------------------
 
